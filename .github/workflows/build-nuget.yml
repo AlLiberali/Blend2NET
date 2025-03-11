@@ -14,11 +14,11 @@ jobs:
             rid: win-x64
           - os: windows-latest
             os_name: win
-            architecture: x86
+            architecture: amd64_x86
             rid: win-x86
           - os: windows-latest
             os_name: win
-            architecture: arm64
+            architecture: amd64_arm64
             rid: win-arm64
           - os: ubuntu-latest
             os_name: linux
@@ -40,7 +40,7 @@ jobs:
             os_name: linux-arm64
             architecture: aarch64
             rid: linux-arm64
-          - os: macos-latest
+          - os: macos-13
             os_name: osx
             architecture: x64
             rid: osx-x64
@@ -59,6 +59,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update
+          sudo apt install -y ninja-build
           if [[ "${{ matrix.os_name }}" == "linux-musl" ]]; then
             sudo apt install -y musl-dev zlib1g-dev
           elif [[ "${{ matrix.os_name }}" == "linux-arm" ]]; then
@@ -67,17 +68,31 @@ jobs:
             sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           fi
 
+      - name: Install Dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install ninja -y
+      - if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.architecture }}
+
+      - name: Install Dependencies (Mac)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install ninja
+
       - name: Configure CMake
         working-directory: ${{ github.workspace }}
-        run: cmake -DRID=${{ matrix.rid }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} -S ${{ github.workspace }} -B ${{ github.workspace }}/build
+        run: cmake -G Ninja -DRID=${{ matrix.rid }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} -S ${{ github.workspace }} -B ${{ github.workspace }}/build
 
       - name: Build
         working-directory: ${{ github.workspace }}/build
-        run: cmake --build . --config Release -j 2
+        run: ninja
 
       - name: Install
         working-directory: ${{ github.workspace }}/build
-        run: cmake --install . --config Release
+        run: ninja install
 
   package:
     needs: build
@@ -93,7 +108,7 @@ jobs:
       - name: Create NuGet package
         shell: bash
         working-directory: ${{ github.workspace }}
-        run: dotnet pack Blend2NET.csproj -c Release -o 
+        run: dotnet pack Blend2NET.csproj -c Release -o .
 
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4

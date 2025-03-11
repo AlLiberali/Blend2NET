@@ -72,6 +72,10 @@ jobs:
       - name: Install
         working-directory: ${{ github.workspace }}/build
         run: ninja install
+      - name: List
+        if: always()
+        working-directory: ${{ github.workspace }}/runtimes
+        run: ls
 
   package:
     needs: build
@@ -83,7 +87,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
+      - name: List
+        if: always()
+        working-directory: ${{ github.workspace }}/runtimes
+        run: ls
       - name: Create NuGet package
         shell: bash
         working-directory: ${{ github.workspace }}

@@ -72,10 +72,12 @@ jobs:
       - name: Install
         working-directory: ${{ github.workspace }}/build
         run: ninja install
-      - name: List
-        if: always()
-        working-directory: ${{ github.workspace }}/runtimes
-        run: ls
+
+      - name: Upload shared library
+        uses: actions/upload-artifact@v4
+        with:
+          name: lib-${{ matrix.rid }}
+          path: ${{ github.workspace }}/runtimes
 
   package:
     needs: build
@@ -87,10 +89,11 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: List
-        if: always()
-        working-directory: ${{ github.workspace }}/runtimes
-        run: ls
+      - name: Download built libs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lib-*
+          path: ${{ github.workspace }}/runtimes
       - name: Create NuGet package
         shell: bash
         working-directory: ${{ github.workspace }}

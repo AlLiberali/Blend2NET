@@ -94,6 +94,7 @@ jobs:
         with:
           pattern: lib-*
           path: ${{ github.workspace }}/runtimes
+          merge-multiple: true
       - name: Create NuGet package
         shell: bash
         working-directory: ${{ github.workspace }}

@@ -58,35 +58,24 @@ jobs:
       - name: Install Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          sudo apt update
           if [[ "${{ matrix.os_name }}" == "linux-musl" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake musl-dev zlib1g-dev
+            sudo apt install -y musl-dev zlib1g-dev
           elif [[ "${{ matrix.os_name }}" == "linux-arm" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+            sudo apt install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
           elif [[ "${{ matrix.os_name }}" == "linux-arm64" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          else
-            sudo apt-get update && sudo apt-get install -y cmake g++
+            sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           fi
 
-      - name: Install Dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: brew install cmake
-
       - name: Configure CMake
-        shell: bash
         working-directory: ${{ github.workspace }}
         run: cmake -DRID=${{ matrix.rid }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} -S ${{ github.workspace }} -B ${{ github.workspace }}/build
 
       - name: Build
-        shell: bash
         working-directory: ${{ github.workspace }}/build
         run: cmake --build . --config Release -j 2
 
       - name: Install
-        shell: bash
         working-directory: ${{ github.workspace }}/build
         run: cmake --install . --config Release
 

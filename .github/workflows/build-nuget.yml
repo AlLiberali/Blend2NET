@@ -14,10 +14,6 @@ jobs:
             rid: win-x64
           - os: windows-latest
             os_name: win
-            architecture: amd64_x86
-            rid: win-x86
-          - os: windows-latest
-            os_name: win
             architecture: amd64_arm64
             rid: win-arm64
           - os: ubuntu-latest
@@ -32,10 +28,6 @@ jobs:
             os_name: linux-musl
             architecture: arm64
             rid: linux-musl-arm64
-          - os: ubuntu-latest
-            os_name: linux-arm
-            architecture: armv7l
-            rid: linux-arm
           - os: ubuntu-latest
             os_name: linux-arm64
             architecture: aarch64

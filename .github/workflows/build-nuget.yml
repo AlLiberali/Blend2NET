@@ -52,6 +52,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Install Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'

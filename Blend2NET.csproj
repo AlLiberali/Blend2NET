@@ -2,10 +2,57 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
+		<AssemblyName>AlLiberali.Blend2NET</AssemblyName>
+		<Authors>Nader Jafari</Authors>
+		<Company>AlLiberali</Company>
+		<RootNamespace>AlLiberali.Blend2NET</RootNamespace>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Blend2NET: Blend2D .NET wrapper</Title>
+		<Version>0.12.0-alpha</Version>
+		<Copyright>Copyright (c) Nader Jafari 2025</Copyright>
+		<PackageProjectUrl>https://github.com/AlLiberali/Blend2NET</PackageProjectUrl>
+		<PackageIcon>Logo.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/AlLiberali/Blend2NET</RepositoryUrl>
+		<PackageTags>graphics;2D;drawing;canvas;wrapper;native;bindings;vector;simd</PackageTags>
+		<PackageLicenseExpression>MIT-0</PackageLicenseExpression>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>6.0-recommended</AnalysisLevel>
+		<LangVersion>12.0</LangVersion>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<WarningLevel>6</WarningLevel>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<WarningLevel>6</WarningLevel>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="runtimes\**" PackagePath="runtimes" Visible="false" />
+		<None Update="Logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="runtimes\**\*.*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<Pack>true</Pack>
+			<TargetPath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+			<PackagePath>runtimes\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

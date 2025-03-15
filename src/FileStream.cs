@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
-using static AlLiberali.Blend2NET.Common;
 
 namespace AlLiberali.Blend2NET;
 
-public sealed partial class FileStream : Stream, IDisposable {
+public sealed partial class FileStream : Stream, IDisposable, IBlendObject {
 	private BLFileCore self;
 	private Boolean isDisposed;
+	private readonly Boolean canRead;
+	private readonly Boolean canWrite;
 	public Boolean IsOpen { get => self.handle != (IntPtr) (-1); }
 	public override Int64 Position {
 		get {
@@ -16,21 +17,21 @@ public sealed partial class FileStream : Stream, IDisposable {
 			Seek(value, SeekOrigin.Begin);
 		}
 	}
-	public override Boolean CanRead => true;
-	public override Boolean CanWrite => true;
+	public override Boolean CanRead => canRead;
+	public override Boolean CanWrite => canWrite;
 	public override Boolean CanSeek => true;
-	public Boolean IsRegular { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_REGULAR); }
-	public Boolean IsDirectory { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_DIRECTORY); }
-	public Boolean IsSymlink { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SYMLINK); }
-	public Boolean IsCharacterDevice { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_CHAR_DEVICE); }
-	public Boolean IsBlockDevice { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_BLOCK_DEVICE); }
-	public Boolean IsFIFO { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_FIFO); }
-	public Boolean IsSocket { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SOCKET); }
-	public Boolean IsHidden { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_HIDDEN); }
-	public Boolean IsArchive { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_ARCHIVE); }
-	public Boolean IsSystem { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SYSTEM); }
-	public Boolean IsExecutable { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_EXECUTABLE); }
-	public Boolean IsValid { get => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_VALID); }
+	public Boolean IsRegular  => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_REGULAR);
+	public Boolean IsDirectory => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_DIRECTORY);
+	public Boolean IsSymlink => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SYMLINK);
+	public Boolean IsCharacterDevice => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_CHAR_DEVICE);
+	public Boolean IsBlockDevice => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_BLOCK_DEVICE);
+	public Boolean IsFIFO => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_FIFO);
+	public Boolean IsSocket => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SOCKET);
+	public Boolean IsHidden => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_HIDDEN);
+	public Boolean IsArchive => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_ARCHIVE);
+	public Boolean IsSystem => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_SYSTEM);
+	public Boolean IsExecutable => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_EXECUTABLE);
+	public Boolean IsValid => CheckFileInfoFlag(BLFileInfoFlags.BL_FILE_INFO_VALID);
 	/// <summary>
 	/// Returns a tuple of 3 tuples and 2 booleans of permissions in a UNIX fashion.
 	/// </summary>
@@ -94,6 +95,8 @@ public sealed partial class FileStream : Stream, IDisposable {
 	/// <param name="flags"></param>
 	/// <exception cref="BlendException">When the file cant be opened. It includes a message citing the Blend2D error code</exception>
 	public FileStream(string fileName, BLFileOpenFlags flags) {
+		canRead = (flags & BLFileOpenFlags.BL_FILE_OPEN_READ) != 0;
+		canWrite = (flags & BLFileOpenFlags.BL_FILE_OPEN_WRITE) != 0;
 		var err = blFileInit(ref self);
 		if (err != BLResult.BL_SUCCESS)
 			throw new BlendException(err);
@@ -194,4 +197,7 @@ public sealed partial class FileStream : Stream, IDisposable {
 			? (info.flags & f) != 0
 			: throw new BlendException(err);
 	}
+
+	IBlendStruct IBlendObject.Thyself() => self;
+	R IBlendObject.Apply<R>(Func<IBlendStruct, R> func) => func(self);
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Runtime.InteropServices;
 using size_t = System.IntPtr;
 
@@ -15,9 +14,14 @@ namespace AlLiberali.Blend2NET;
 
 public static class Array_ {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BLArrayCore {
+	public struct BLArrayCore : IBlendStruct<BLArrayCore> {
 		internal IntPtr impl;
 		private readonly IntPtr internals;
+		public readonly Boolean Equals(BLArrayCore other) => impl == other.impl && internals == other.internals;
+		public override readonly Boolean Equals(object obj) => obj is BLArrayCore other && Equals(other);
+		public static Boolean operator ==(BLArrayCore left, BLArrayCore right) => left.Equals(right);
+		public static Boolean operator !=(BLArrayCore left, BLArrayCore right) => !(left == right);
+		public override readonly Int32 GetHashCode() => (Int32) impl;
 	}
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayInit(ref BLArrayCore self, BLObjectType arrayType);
@@ -73,8 +77,13 @@ public static class Array_ {
 	public static extern BLResult blArrayAppendF32(ref BLArrayCore self, float value);
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayAppendF64(ref BLArrayCore self, double value);
-	[DllImport("blend2d")]
-	internal static extern BLResult blArrayAppendItem(ref BLArrayCore self, ref IBlendStruct item);
+	internal static BLResult blArrayAppendItem<T>(ref BLArrayCore self, ref IBlendStruct<T> item) {
+		var mem = Marshal.AllocHGlobal(Marshal.SizeOf(item));
+		Marshal.StructureToPtr(item, mem, false);
+		var ret = blArrayAppendItem(ref self, mem);
+		Marshal.FreeHGlobal(mem);
+		return ret;
+	}
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayAppendItem(ref BLArrayCore self, IntPtr item);
 	[DllImport("blend2d")]
@@ -92,8 +101,13 @@ public static class Array_ {
 	public static extern BLResult blArrayInsertF32(ref BLArrayCore self, size_t index, float value);
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayInsertF64(ref BLArrayCore self, size_t index, double value);
-	[DllImport("blend2d")]
-	internal static extern BLResult blArrayInsertItem(ref BLArrayCore self, size_t index, ref IBlendStruct item);
+	internal static BLResult blArrayInsertItem<T>(ref BLArrayCore self, size_t index, ref IBlendStruct<T> item) {
+		var mem = Marshal.AllocHGlobal(Marshal.SizeOf(item));
+		Marshal.StructureToPtr(item, mem, false);
+		var ret = blArrayInsertItem(ref self, index, mem);
+		Marshal.FreeHGlobal(mem);
+		return ret;
+	}
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayInsertItem(ref BLArrayCore self, size_t index, IntPtr item);
 	[DllImport("blend2d")]
@@ -111,8 +125,13 @@ public static class Array_ {
 	public static extern BLResult blArrayReplaceF32(ref BLArrayCore self, size_t index, float value);
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayReplaceF64(ref BLArrayCore self, size_t index, double value);
-	[DllImport("blend2d")]
-	internal static extern BLResult blArrayReplaceItem(ref BLArrayCore self, size_t index, ref IBlendStruct item);
+	internal static BLResult blArrayReplaceItem<T>(ref BLArrayCore self, size_t index, ref IBlendStruct<T> item) {
+		var mem = Marshal.AllocHGlobal(Marshal.SizeOf(item));
+		Marshal.StructureToPtr(item, mem, false);
+		var ret = blArrayReplaceItem(ref self, index, mem);
+		Marshal.FreeHGlobal(mem);
+		return ret;
+	}
 	[DllImport("blend2d")]
 	public static extern BLResult blArrayReplaceItem(ref BLArrayCore self, size_t index, IntPtr item);
 	[DllImport("blend2d")]

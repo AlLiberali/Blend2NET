@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace AlLiberali.Blend2NET;
-public sealed partial class Random : IBlendObject {
+public sealed partial class Random : IBlendObject<Random, Random.BLRandom> {
 	private BLRandom self;
 	public Random() {
 		Reset();
@@ -25,6 +25,7 @@ public sealed partial class Random : IBlendObject {
 	/// </summary>
 	/// <returns></returns>
 	public Double NextDouble() => blRandomNextDouble(ref self);
-	IBlendStruct IBlendObject.Thyself() => self;
-	R IBlendObject.Apply<R>(Func<IBlendStruct, R> func) => func(self);
+	public Boolean Equals(IBlendObject<Random, BLRandom> other) => other.Thyself().Equals(self);
+	IBlendStruct<BLRandom> IBlendObject<Random, BLRandom>.Thyself() => self;
+	R IBlendObject<Random, BLRandom>.Apply<R>(Func<IBlendStruct<BLRandom>, R> func) => func(self);
 }

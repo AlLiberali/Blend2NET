@@ -201,29 +201,5 @@ public enum BLObjectType : UInt32 {
 	/// <summary>
 	/// Object is <see cref="BLFontManager" />.
 	/// </summary>
-	BL_OBJECT_TYPE_FONT_MANAGER = 106,
-	/// <summary>
-	/// Minimum object type of an array object.
-	/// </summary>
-	BL_OBJECT_TYPE_MIN_ARRAY = 33,
-	/// <summary>
-	/// Maximum object type of an array object.
-	/// </summary>
-	BL_OBJECT_TYPE_MAX_ARRAY = 55,
-	/// <summary>
-	/// Minimum object type identifier that can be used as a style.
-	/// </summary>
-	BL_OBJECT_TYPE_MIN_STYLE = 0,
-	/// <summary>
-	/// Maximum object type identifier that can be used as a style.
-	/// </summary>
-	BL_OBJECT_TYPE_MAX_STYLE = 5,
-	/// <summary>
-	/// Minimum object type of an object with virtual function table.
-	/// </summary>
-	BL_OBJECT_TYPE_MIN_VIRTUAL = 100,
-	/// <summary>
-	/// Maximum object type of an object with virtual function table.
-	/// </summary>
-	BL_OBJECT_TYPE_MAX_VIRTUAL = 127
+	BL_OBJECT_TYPE_FONT_MANAGER = 106
 }

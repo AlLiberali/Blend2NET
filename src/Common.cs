@@ -437,9 +437,9 @@ public enum BLModifyOp : UInt32 {
 	/// </summary>
 	BL_MODIFY_OP_APPEND_GROW = 3,
 }
-public interface IBlendObject {
-	internal IBlendStruct Thyself();
-	internal R Apply<R>(Func<IBlendStruct, R> func);
+public interface IBlendObject<T, TS> : IEquatable<IBlendObject<T, TS>> {
+	internal IBlendStruct<TS> Thyself();
+	internal R Apply<R>(Func<IBlendStruct<TS>, R> func);
 }
-internal interface IBlendStruct {
+internal interface IBlendStruct<T> : IEquatable<T> {
 }

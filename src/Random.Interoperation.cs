@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using static AlLiberali.Blend2NET.Common;
 
 namespace AlLiberali.Blend2NET;
 
@@ -20,9 +19,14 @@ public sealed partial class Random {
 	/// http://vigna.di.unimi.it/ftp/papers/xorshiftplus.pdf
 	/// </remarks>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BLRandom : IBlendStruct {
+	public struct BLRandom : IBlendStruct<BLRandom> {
 		internal UInt64 data0;
 		internal UInt64 data1;
+		public readonly Boolean Equals(BLRandom other) => data0 == other.data0 && data1 == other.data1;
+		public override readonly Boolean Equals(object obj) => obj is BLRandom other && Equals(other);
+		public static Boolean operator ==(BLRandom left, BLRandom right) => left.Equals(right);
+		public static Boolean operator !=(BLRandom left, BLRandom right) => !(left == right);
+		public override readonly Int32 GetHashCode() => (Int32) data0;
 	}
 	[DllImport("blend2d")]
 	public static extern BLResult blRandomReset(ref BLRandom self, UInt64 seed);

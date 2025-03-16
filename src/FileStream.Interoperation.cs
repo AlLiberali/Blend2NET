@@ -291,9 +291,14 @@ public sealed partial class FileStream : Stream, IDisposable {
 	/// A thin abstraction over a native OS file IO [C API].
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BLFileCore : IBlendStruct {
+	public struct BLFileCore : IBlendStruct<BLFileCore> {
 		internal IntPtr handle;
 		private readonly IntPtr internals;
+		public readonly Boolean Equals(BLFileCore other) => handle == other.handle && internals == other.internals;
+		public override readonly Boolean Equals(object obj) => obj is BLFileCore other && Equals(other);
+		public static Boolean operator ==(BLFileCore left, BLFileCore right) => left.Equals(right);
+		public static Boolean operator !=(BLFileCore left, BLFileCore right) => !(left == right);
+		public override readonly Int32 GetHashCode() => (Int32) handle;
 	}
 	/// <summary>
 	/// File information.
@@ -335,7 +340,7 @@ public sealed partial class FileStream : Stream, IDisposable {
 	[DllImport("blend2d", CharSet = CharSet.Ansi)]
 	public static extern BLResult blFileSystemGetInfo(String fileName, out BLFileInfo infoOut);
 	[DllImport("blend2d", CharSet = CharSet.Ansi)]
-	public static extern BLResult blFileSystemReadFile(String fileName, ref Array.BLArrayCore dst, UIntPtr maxSize, BLFileReadFlags readFlags); // TODO BLArray not byte[]
+	public static extern BLResult blFileSystemReadFile(String fileName, ref Array_.BLArrayCore dst, UIntPtr maxSize, BLFileReadFlags readFlags); // TODO BLArray not byte[]
 	[DllImport("blend2d", CharSet = CharSet.Ansi)]
 	public unsafe static extern BLResult blFileSystemWriteFile(String fileName, byte[] data, UIntPtr size, out UIntPtr bytesWrittenOut); // TODO Document data buffer, fixed, unsafe
 }

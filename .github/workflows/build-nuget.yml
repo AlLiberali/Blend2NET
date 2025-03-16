@@ -98,10 +98,10 @@ jobs:
       - name: Create NuGet package
         shell: bash
         working-directory: ${{ github.workspace }}
-        run: dotnet pack Blend2NET.csproj -c Release -o .
+        run: dotnet build -c Release
 
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
           name: Blend2NET
-          path: ${{ github.workspace }}/*.nupkg
+          path: ${{ github.workspace }}/bin/Release/*.s?nupkg

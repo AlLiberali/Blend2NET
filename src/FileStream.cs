@@ -3,7 +3,7 @@ using System.IO;
 
 namespace AlLiberali.Blend2NET;
 
-public sealed partial class FileStream : Stream, IDisposable, IBlendObject {
+public sealed partial class FileStream : Stream, IDisposable, IBlendObject<FileStream, FileStream.BLFileCore> {
 	private BLFileCore self;
 	private Boolean isDisposed;
 	private readonly Boolean canRead;
@@ -198,6 +198,7 @@ public sealed partial class FileStream : Stream, IDisposable, IBlendObject {
 			: throw new BlendException(err);
 	}
 
-	IBlendStruct IBlendObject.Thyself() => self;
-	R IBlendObject.Apply<R>(Func<IBlendStruct, R> func) => func(self);
+	IBlendStruct<BLFileCore> IBlendObject<FileStream, BLFileCore>.Thyself() => self;
+	R IBlendObject<FileStream, BLFileCore>.Apply<R>(Func<IBlendStruct<BLFileCore>, R> func) => func(self);
+	public Boolean Equals(IBlendObject<FileStream, BLFileCore> other) => other.Thyself().Equals(self);
 }

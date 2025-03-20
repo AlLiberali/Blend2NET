@@ -11,7 +11,6 @@ namespace AlLiberali.Blend2NET;
 #pragma warning disable CA1401
 #pragma warning disable CA1707
 #pragma warning disable CA1711
-#pragma warning disable CA2101
 
 public static class Runtime {
 	/// <summary>

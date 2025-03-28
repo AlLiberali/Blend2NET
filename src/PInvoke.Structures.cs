@@ -17,10 +17,35 @@ namespace AlLiberali.Blend2NET;
 #pragma warning disable IDE1006
 #pragma warning disable IDE0079
 #pragma warning disable CS0649
+#pragma warning disable CS1591
 #pragma warning disable CA1051
 #pragma warning disable CA1711
 
 public static partial class PInvoke {
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericInitialisable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericMoveInitialisableAndDestroyable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericWeakInitialisable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericWeakCopyable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericDeepCopyable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IGenericResettable { }
 	public struct BLRange {
 		public size_t start;
 		public size_t end;
@@ -37,7 +62,7 @@ public static partial class PInvoke {
 		internal UInt32 data0;
 		internal UInt32 data1;
 	}
-	public struct BLFileCore {
+	public struct BLFileCore : IGenericInitialisable {
 		internal IntPtr handle;
 	}
 	public unsafe struct BLFileInfo {
@@ -94,25 +119,25 @@ public static partial class PInvoke {
 		public uint32_t majorVersion;
 		public uint32_t minorVersion;
 		public uint32_t patchVersion;
-		public uint32_t buildType;
-		public uint32_t baselineCpuFeatures;
-		public uint32_t supportedCpuFeatures;
+		public BLRuntimeBuildType buildType;
+		public BLRuntimeCpuFeatures baselineCpuFeatures;
+		public BLRuntimeCpuFeatures supportedCpuFeatures;
 		public uint32_t maxImageSize;
 		public uint32_t maxThreadCount;
-		public fixed uint32_t reserved[2];
-		public fixed char compilerInfo[32];
+		internal fixed uint32_t reserved[2];
+		public fixed Byte compilerInfo[32];
 	}
 	public unsafe struct BLRuntimeSystemInfo {
-		public uint32_t cpuArch;
-		public uint32_t cpuFeatures;
+		public BLRuntimeCpuArch cpuArch;
+		public BLRuntimeCpuFeatures cpuFeatures;
 		public uint32_t coreCount;
 		public uint32_t threadCount;
 		public uint32_t threadStackSize;
 		public uint32_t removed;
 		public uint32_t allocationGranularity;
 		internal fixed uint32_t reserved[5];
-		public fixed char cpuVendor[16];
-		public fixed char cpuBrand[64];
+		public fixed Byte cpuVendor[16];
+		public fixed Byte cpuBrand[64];
 	}
 	public unsafe struct BLRuntimeResourceInfo {
 		public size_t vmUsed;
@@ -241,7 +266,12 @@ public static partial class PInvoke {
 		public Double simplifyTolerance;
 		public Double offsetParameter;
 	}
-	public unsafe struct BLStrokeOptionsCore {
+	public unsafe struct BLStrokeOptionsCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public uint8_t startCap;
 		public uint8_t endCap;
 		public uint8_t join;
@@ -377,7 +407,11 @@ public static partial class PInvoke {
 		public BLBitSetSegment ssoSegment2;
 	}
 	[StructLayout(LayoutKind.Sequential, Size = 80)]
-	public unsafe struct BLPixelConverterCore {
+	public unsafe struct BLPixelConverterCore :
+		IGenericInitialisable,
+		IGenericWeakInitialisable,
+		IGenericResettable,
+		IGenericWeakCopyable {
 		public void* convertFunc;
 		public uint8_t flags;
 	}
@@ -433,64 +467,162 @@ public static partial class PInvoke {
 		[FieldOffset(12)]
 		public uint32_t info;
 	}
-	public struct BLArrayCore {
+	public struct BLArrayCore :
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
-	public struct BLBitArrayCore {
+	public struct BLBitArrayCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLBitSetCore {
+	public struct BLBitSetCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
-	public struct BLStringCore {
+	public struct BLStringCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontDataCore {
+	public struct BLFontDataCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLPathCore {
+	public struct BLPathCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontFaceCore {
+	public struct BLFontFaceCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontFeatureSettingsCore {
+	public struct BLFontFeatureSettingsCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontVariationSettingsCore {
+	public struct BLFontVariationSettingsCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontCore {
+	public struct BLFontCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLGradientCore {
+	public struct BLGradientCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLImageCodecCore {
+	public struct BLImageCodecCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLImageCore {
+	public struct BLImageCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
-	public struct BLPatternCore {
+	public struct BLPatternCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable,
+		IGenericDeepCopyable {
 		public BLObjectCore obj;
 	}
 	public struct BLVarCore {
 		public BLObjectCore obj;
 	}
-	public struct BLContextCore {
+	public struct BLContextCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLFontManagerCore {
+	public struct BLFontManagerCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLImageDecoderCore {
+	public struct BLImageDecoderCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public struct BLImageEncoderCore {
+	public struct BLImageEncoderCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericWeakInitialisable,
+		IGenericWeakCopyable,
+		IGenericResettable {
 		public BLObjectCore obj;
 	}
-	public unsafe struct BLGlyphBufferCore {
+	public unsafe struct BLGlyphBufferCore :
+		IGenericInitialisable,
+		IGenericMoveInitialisableAndDestroyable,
+		IGenericResettable {
 		public void* impl;
 	}
 }

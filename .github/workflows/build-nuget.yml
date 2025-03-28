@@ -104,4 +104,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Blend2NET
-          path: ${{ github.workspace }}/bin/Release/*.s?nupkg
+          path: ${{ github.workspace }}/bin/Release/*.*

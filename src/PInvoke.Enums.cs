@@ -3,6 +3,7 @@ using System;
 namespace AlLiberali.Blend2NET;
 
 #pragma warning disable IDE0079
+#pragma warning disable CS1591
 #pragma warning disable CA1069
 #pragma warning disable CA1707
 #pragma warning disable CA1711

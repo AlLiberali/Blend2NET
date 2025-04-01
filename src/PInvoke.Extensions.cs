@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AlLiberali.Blend2NET;
 
@@ -291,6 +292,399 @@ public static partial class PInvoke {
 		}
 	}
 	/// <summary>
+	/// Gets the number of elements contained in the <see cref="BLArrayCore"/>.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The number of elements contained in the <see cref="BLArrayCore"/>.</returns>
+	public static Int64 Size(this ref BLArrayCore core) {
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return (Int64) blArrayGetSize(pcore);
+		}
+	}
+	/// <summary>
+	/// Removes all items from the <see cref="BLArrayCore"/>.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The status code returned by the <see cref="blArrayClear"/> native procedure</returns>
+	public static BLResult Clear(this ref BLArrayCore core) {
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return blArrayClear(pcore);
+		}
+	}
+	/// <summary>
+	/// Gets the element at <paramref name="index"/>
+	/// </summary>
+	/// <typeparam name="T">The type of the elements within the array</typeparam>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="index">The zero-based index of the element to get</param>
+	/// <returns>Copy of element at <paramref name="index"/> or <c>null</c> if no such thing exists</returns>
+	public static T? Get<T>(this ref BLArrayCore core, Int32 index) where T : unmanaged {
+		if (!(0 <= index || index < core.Size()))
+			return null;
+		unsafe {
+			T* pitem = null;
+			fixed (BLArrayCore* pcore = &core)
+				pitem = ((T*) blArrayGetData(pcore));
+			if (pitem is null)
+				return null;
+			pitem += index;
+			return Marshal.PtrToStructure<T>((IntPtr) pitem);
+		}
+	}
+	/// <summary>
+	/// Sets the element at <paramref name="index"/> to <paramref name="value"/>
+	/// </summary>
+	/// <typeparam name="T">The type of the elements within the array</typeparam>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="index">The zero-based index of the element to set</param>
+	/// <param name="value">The thing to be put at <paramref name="index"/></param>
+	/// <returns>
+	/// <list type="bullet">
+	/// <item><see cref="BLResult.BL_ERROR_INVALID_KEY"/> if the index is out of range</item>
+	/// <item><see cref="BLResult.BL_ERROR_NOT_IMPLEMENTED"/> if <typeparamref name="T"/> is not supported</item>
+	/// <item>The status code returned by the relevant <c>blArrayReplace*</c> native procedure</item>
+	/// </list>
+	/// </returns>
+	public static BLResult Set<T>(this ref BLArrayCore core, Int32 index, T value) where T : unmanaged {
+		if (!(0 <= index || index < core.Size()))
+			return BLResult.BL_ERROR_INVALID_KEY;
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return value switch {
+					SByte v => blArrayReplaceU8(pcore, (IntPtr) index, (Byte) v),
+					Byte v => blArrayReplaceU8(pcore, (IntPtr) index, v),
+					Int16 v => blArrayReplaceU16(pcore, (IntPtr) index, (UInt16) v),
+					UInt16 v => blArrayReplaceU16(pcore, (IntPtr) index, v),
+					Int32 v => blArrayReplaceU32(pcore, (IntPtr) index, (UInt32) v),
+					UInt32 v => blArrayReplaceU32(pcore, (IntPtr) index, v),
+					Int64 v => blArrayReplaceU64(pcore, (IntPtr) index, (UInt64) v),
+					UInt64 v => blArrayReplaceU64(pcore, (IntPtr) index, v),
+					Single v => blArrayReplaceF32(pcore, (IntPtr) index, v),
+					Double v => blArrayReplaceF64(pcore, (IntPtr) index, v),
+					T => sizeof(T) switch {
+						1 or 2 or 3 or 4 or 6 or 8 or 10 or 12 or 16 or 20 or 24 or 32 => blArrayReplaceItem(pcore, (IntPtr) index, &value),
+						_ => BLResult.BL_ERROR_NOT_IMPLEMENTED
+					}
+				};
+		}
+	}
+	/// <summary>
+	/// Appends <paramref name="value"/> to the end of the array
+	/// </summary>
+	/// <typeparam name="T">The type of the elements within the array</typeparam>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="value">The thing to be appended</param>
+	/// <returns>
+	/// <list type="bullet">
+	/// <item><see cref="BLResult.BL_ERROR_NOT_IMPLEMENTED"/> if <typeparamref name="T"/> is not supported</item>
+	/// <item>The status code returned by the relevant <c>blArrayAppend*</c> native procedure</item>
+	/// </list>
+	/// </returns>
+	public static BLResult Append<T>(this ref BLArrayCore core, T value) where T : unmanaged {
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return value switch {
+					SByte v => blArrayAppendU8(pcore, (Byte) v),
+					Byte v => blArrayAppendU8(pcore, v),
+					Int16 v => blArrayAppendU16(pcore, (UInt16) v),
+					UInt16 v => blArrayAppendU16(pcore, v),
+					Int32 v => blArrayAppendU32(pcore, (UInt32) v),
+					UInt32 v => blArrayAppendU32(pcore, v),
+					Int64 v => blArrayAppendU64(pcore, (UInt64) v),
+					UInt64 v => blArrayAppendU64(pcore, v),
+					Single v => blArrayAppendF32(pcore, v),
+					Double v => blArrayAppendF64(pcore, v),
+					T => sizeof(T) switch {
+						1 or 2 or 3 or 4 or 6 or 8 or 10 or 12 or 16 or 20 or 24 or 32 => blArrayAppendItem(pcore, &value),
+						_ => BLResult.BL_ERROR_NOT_IMPLEMENTED
+					}
+				};
+		}
+	}
+	/// <summary>
+	/// Inserts <paramref name="value"/> at <paramref name="index"/>
+	/// </summary>
+	/// <typeparam name="T">The type of the elements within the array</typeparam>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="index">The zero-based index for the element to be inserted</param>
+	/// <param name="value">The thing to be put at <paramref name="index"/></param>
+	/// <returns>
+	/// <list type="bullet">
+	/// <item><see cref="BLResult.BL_ERROR_INVALID_KEY"/> if the index is out of range</item>
+	/// <item><see cref="BLResult.BL_ERROR_NOT_IMPLEMENTED"/> if <typeparamref name="T"/> is not supported</item>
+	/// <item>The status code returned by the relevant <c>blArrayInsert*</c> native procedure</item>
+	/// </list>
+	/// </returns>
+	public static BLResult Insert<T>(this ref BLArrayCore core, Int32 index, T value) where T : unmanaged {
+		if (!(0 <= index || index < core.Size()))
+			return BLResult.BL_ERROR_INVALID_KEY;
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return value switch {
+					SByte v => blArrayInsertU8(pcore, (IntPtr) index, (Byte) v),
+					Byte v => blArrayInsertU8(pcore, (IntPtr) index, v),
+					Int16 v => blArrayInsertU16(pcore, (IntPtr) index, (UInt16) v),
+					UInt16 v => blArrayInsertU16(pcore, (IntPtr) index, v),
+					Int32 v => blArrayInsertU32(pcore, (IntPtr) index, (UInt32) v),
+					UInt32 v => blArrayInsertU32(pcore, (IntPtr) index, v),
+					Int64 v => blArrayInsertU64(pcore, (IntPtr) index, (UInt64) v),
+					UInt64 v => blArrayInsertU64(pcore, (IntPtr) index, v),
+					Single v => blArrayInsertF32(pcore, (IntPtr) index, v),
+					Double v => blArrayInsertF64(pcore, (IntPtr) index, v),
+					T => sizeof(T) switch {
+						1 or 2 or 3 or 4 or 6 or 8 or 10 or 12 or 16 or 20 or 24 or 32 => blArrayInsertItem(pcore, (IntPtr) index, &value),
+						_ => BLResult.BL_ERROR_NOT_IMPLEMENTED
+					}
+				};
+		}
+	}
+	/// <summary>
+	/// Removes the element at <paramref name="index"/>
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="index">The zero-based index of the element to remove</param>
+	/// <returns>
+	/// <list type="bullet">
+	/// <item><see cref="BLResult.BL_ERROR_INVALID_KEY"/> if the index is out of range</item>
+	/// <item>The status code returned by the relevant <c>blArrayReplace*</c> native procedure</item>
+	/// </list>
+	/// </returns>
+	public static BLResult Remove(this ref BLArrayCore core, Int32 index) {
+		if (!(0 <= index || index < core.Size()))
+			return BLResult.BL_ERROR_INVALID_KEY;
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return blArrayRemoveIndex(pcore, (IntPtr) index);
+		}
+	}
+	/// <summary>
+	/// Enquires the full name for the font face.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The name as promised or <see langword="null"/> if the <see cref="blFontFaceGetFullName"/> native procedure fails.</returns>
+	public static String? GetFullName(this ref BLFontFaceCore core) {
+		unsafe {
+			BLResult err;
+			BLStringCore* pstring = stackalloc BLStringCore[1];
+			fixed (BLFontFaceCore* pcore = &core)
+				err = blFontFaceGetFullName(pcore, pstring);
+			if (err != BLResult.BL_SUCCESS)
+				return null;
+			Byte* pchar = blStringGetData(pstring);
+			Int32 length = (Int32) blStringGetSize(pstring);
+			return Encoding.ASCII.GetString(pchar, length);
+		}
+	}
+	/// <summary>
+	/// Enquires the family name for the font face.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The name as promised or <see langword="null"/> if the <see cref="blFontFaceGetFamilyName"/> native procedure fails.</returns>
+	public static String? GetFamilyName(this ref BLFontFaceCore core) {
+		unsafe {
+			BLResult err;
+			BLStringCore* pstring = stackalloc BLStringCore[1];
+			fixed (BLFontFaceCore* pcore = &core)
+				err = blFontFaceGetFamilyName(pcore, pstring);
+			if (err != BLResult.BL_SUCCESS)
+				return null;
+			Byte* pchar = blStringGetData(pstring);
+			Int32 length = (Int32) blStringGetSize(pstring);
+			return Encoding.ASCII.GetString(pchar, length);
+		}
+	}
+	/// <summary>
+	/// Enquires the subfamily name for the font face.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The name as promised or <see langword="null"/> if the <see cref="blFontFaceGetSubfamilyName"/> native procedure fails.</returns>
+	public static String? GetSubfamilyName(this ref BLFontFaceCore core) {
+		unsafe {
+			BLResult err;
+			BLStringCore* pstring = stackalloc BLStringCore[1];
+			fixed (BLFontFaceCore* pcore = &core)
+				err = blFontFaceGetSubfamilyName(pcore, pstring);
+			if (err != BLResult.BL_SUCCESS)
+				return null;
+			Byte* pchar = blStringGetData(pstring);
+			Int32 length = (Int32) blStringGetSize(pstring);
+			return Encoding.ASCII.GetString(pchar, length);
+		}
+	}
+	/// <summary>
+	/// Enquires the PostScript name for the font face.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The name as promised or <see langword="null"/> if the <see cref="blFontFaceGetPostScriptName"/> native procedure fails.</returns>
+	public static String? GetPostScriptName(this ref BLFontFaceCore core) {
+		unsafe {
+			BLResult err;
+			BLStringCore* pstring = stackalloc BLStringCore[1];
+			fixed (BLFontFaceCore* pcore = &core)
+				err = blFontFaceGetPostScriptName(pcore, pstring);
+			if (err != BLResult.BL_SUCCESS)
+				return null;
+			Byte* pchar = blStringGetData(pstring);
+			Int32 length = (Int32) blStringGetSize(pstring);
+			return Encoding.ASCII.GetString(pchar, length);
+		}
+	}
+	/// <summary>
+	/// Finds a <see cref="BLImageCodecCore"/> associated with <paramref name="name"/>
+	/// within the <paramref name="codecArray"/> and initialises <paramref name="core"/>
+	/// with it.
+	/// <para/>
+	/// Note that this doesn't destroy any instance held previously by <paramref name="core"/>
+	/// </summary>
+	/// <param name="core">The struct to hold the codec found</param>
+	/// <param name="name">Name of the codec</param>
+	/// <param name="codecArray">Array containing codecs</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecFindByName"/> native procedure</returns>
+	/// <seealso cref="PopulateWithBuiltinImageCodecs(ref BLArrayCore)"/>
+	public static BLResult FindByName(this ref BLImageCodecCore core, String name, ref BLArrayCore codecArray) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+			fixed (BLArrayCore* parray = &codecArray)
+				return blImageCodecFindByName(pcore, name, (IntPtr) Encoding.UTF8.GetByteCount(name), parray);
+		}
+	}
+	/// <summary>
+	/// Finds a <see cref="BLImageCodecCore"/> associated with <paramref name="extension"/>
+	/// within the <paramref name="codecArray"/> and initialises <paramref name="core"/>
+	/// with it.
+	/// <para/>
+	/// Note that this doesn't destroy any instance held previously by <paramref name="core"/>
+	/// </summary>
+	/// <param name="core">The struct to hold the codec found</param>
+	/// <param name="extension">File extension of the codec's format</param>
+	/// <param name="codecArray">Array containing codecs</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecFindByExtension"/> native procedure</returns>
+	/// <seealso cref="PopulateWithBuiltinImageCodecs(ref BLArrayCore)"/>
+	public static BLResult FindByExtension(this ref BLImageCodecCore core, String extension, ref BLArrayCore codecArray) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+			fixed (BLArrayCore* parray = &codecArray)
+				return blImageCodecFindByExtension(pcore, extension, (IntPtr) Encoding.UTF8.GetByteCount(extension), parray);
+		}
+	}
+	/// <summary>
+	/// Initialises a decoder instance of the codec.
+	/// <para/>
+	/// Note that this doesn't destroy any instance held previously by <paramref name="decoder"/>
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="decoder">The struct for the decoder object</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecCreateDecoder"/> native procedure</returns>
+	public static BLResult InitialiseDecoder(this ref BLImageCodecCore core, ref BLImageDecoderCore decoder) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+			fixed (BLImageDecoderCore* pdecoder = &decoder)
+				return blImageCodecCreateDecoder(pcore, pdecoder);
+		}
+	}
+	/// <summary>
+	/// Initialises a encoder instance of the codec
+	/// <para/>
+	/// Note that this doesn't destroy any instance held previously by <paramref name="encoder"/>
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="encoder">The struct for the encoder object</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecCreateEncoder"/> native procedure</returns>
+	public static BLResult InitialiseEncoder(this ref BLImageCodecCore core, ref BLImageEncoderCore encoder) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+			fixed (BLImageEncoderCore* pencoder = &encoder)
+				return blImageCodecCreateEncoder(pcore, pencoder);
+		}
+	}
+	/// <summary>
+	/// Adds this codec instance to builtin instances within the Blend2D library.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecAddToBuiltIn"/> native procedure</returns>
+	public static BLResult AddToBuiltins(this ref BLImageCodecCore core) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+				return blImageCodecAddToBuiltIn(pcore);
+		}
+	}
+	/// <summary>
+	/// Removes this codec instance from builtin instances within the Blend2D library.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecAddToBuiltIn"/> native procedure</returns>
+	public static BLResult RemoveFromBuiltins(this ref BLImageCodecCore core) {
+		unsafe {
+			fixed (BLImageCodecCore* pcore = &core)
+				return blImageCodecRemoveFromBuiltIn(pcore);
+		}
+	}
+	/// <summary>
+	/// Initialises a <paramref name="width"/> by <paramref name="height"/> image of
+	/// <paramref name="format"/>
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="width">Width of the image</param>
+	/// <param name="height">Height of the image</param>
+	/// <param name="format">Colour format of the image</param>
+	/// <returns>The status code returned by the <see cref="blImageCreate"/> native procedure</returns>
+	public static BLResult Initialise(this ref BLImageCore core, UInt32 width, UInt32 height, BLFormat format) {
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+				return blImageCreate(pcore, width, height, format);
+		}
+	}
+	/// <summary>
+	/// Converts the image's colour format
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="format">Output colour format of the image</param>
+	/// <returns>The status code returned by the <see cref="blImageConvert"/> native procedure</returns>
+	public static BLResult Convert(this ref BLImageCore core, BLFormat format) {
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+				return blImageConvert(pcore, format);
+		}
+	}
+	/// <summary>
+	/// Scales the image at <paramref name="source"/> to <paramref name="width"/> by <paramref name="height"/>
+	/// dimensions using <paramref name="filter"/> image scaling filter and stores it within <paramref name="core"/>
+	/// </summary>
+	/// <param name="core">Scaling destination</param>
+	/// <param name="source">Scaling source</param>
+	/// <param name="width">Target width</param>
+	/// <param name="height">Target height</param>
+	/// <param name="filter">Scaling strategy</param>
+	/// <returns>The status code returned by the <see cref="blImageScale"/> native procedure</returns>
+	public static BLResult Scale(this ref BLImageCore core, ref BLImageCore source, Int32 width, Int32 height, BLImageScaleFilter filter) {
+		unsafe {
+			BLSizeI* size = stackalloc BLSizeI[1];
+			size->w = width;
+			size->h = height;
+			fixed (BLImageCore* pcore = &core)
+			fixed (BLImageCore* psource = &source)
+				return blImageScale(pcore, psource, size, filter);
+		}
+	}
+
+	/// <summary>
+	/// Populates an uninitialised <see cref="BLArrayCore"/> with <see cref="BLImageCodecCore"/>s
+	/// built into the Blend2D library.
+	/// <para/>
+	/// This method initialises a <see cref="BLArrayCore"/>. Remember to <see cref="Destroy{T}"/>
+	/// this instance and any instance held previously by <paramref name="core"/>.
+	/// </summary>
+	/// <param name="core">The struct to be initialised and populated</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecArrayInitBuiltInCodecs"/> native procedure</returns>
+	public static BLResult PopulateWithBuiltinImageCodecs(this ref BLArrayCore core) {
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return blImageCodecArrayInitBuiltInCodecs(pcore);
+		}
+	}
+	/// <summary>
 	/// Initialises the converter into a valid state, ready to be used to convert betwixt the relevant formats.
 	/// </summary>
 	/// <param name="core">The struct to be initialised</param>
@@ -334,8 +728,8 @@ public static partial class PInvoke {
 		core.Initialise();
 		unsafe {
 			fixed (BLPixelConverterCore* pcore = &core)
-			fixed (BLFormatInfo *dst = &destination)
-			fixed (BLFormatInfo *src = &source)
+			fixed (BLFormatInfo* dst = &destination)
+			fixed (BLFormatInfo* src = &source)
 				return blPixelConverterCreate(pcore, dst, src, createFlags);
 		}
 	}

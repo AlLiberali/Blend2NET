@@ -46,6 +46,10 @@ public static partial class PInvoke {
 	/// Not to be implemented by users
 	/// </summary>
 	public interface IGenericResettable { }
+	/// <summary>
+	/// Not to be implemented by users
+	/// </summary>
+	public interface IBlendObjectCore { }
 	public struct BLRange {
 		public size_t start;
 		public size_t end;
@@ -424,14 +428,14 @@ public static partial class PInvoke {
 		public BLPointI pixelOrigin;
 		internal uint32_t reserved;
 	}
-	[StructLayout(LayoutKind.Sequential, Size = 8)]
+	[StructLayout(LayoutKind.Explicit)]
 	public struct BLContextHints {
-		public uint8_t renderingQuality;
-		public uint8_t gradientQuality;
-		public uint8_t patternQuality;
+		[FieldOffset(0)] public uint8_t renderingQuality;
+		[FieldOffset(0)] public uint8_t gradientQuality;
+		[FieldOffset(0)] public uint8_t patternQuality;
 	}
 	[StructLayout(LayoutKind.Explicit, Size = 16)]
-	public unsafe struct BLObjectCore {
+	public unsafe struct BLObjectCore : IBlendObjectCore {
 		[FieldOffset(0)]
 		BLRgba32 rgba32;
 		[FieldOffset(0)]
@@ -472,7 +476,8 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLBitArrayCore :
@@ -480,7 +485,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLBitSetCore :
@@ -489,7 +495,8 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLStringCore :
@@ -498,7 +505,8 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontDataCore :
@@ -506,7 +514,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLPathCore :
@@ -515,7 +524,8 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontFaceCore :
@@ -523,7 +533,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontFeatureSettingsCore :
@@ -531,7 +542,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontVariationSettingsCore :
@@ -539,7 +551,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontCore :
@@ -547,7 +560,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLGradientCore :
@@ -555,7 +569,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLImageCodecCore :
@@ -563,7 +578,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLImageCore :
@@ -572,7 +588,8 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLPatternCore :
@@ -581,10 +598,11 @@ public static partial class PInvoke {
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
 		IGenericResettable,
-		IGenericDeepCopyable {
+		IGenericDeepCopyable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
-	public struct BLVarCore {
+	public struct BLVarCore : IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLContextCore :
@@ -592,7 +610,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLFontManagerCore :
@@ -600,7 +619,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLImageDecoderCore :
@@ -608,7 +628,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public struct BLImageEncoderCore :
@@ -616,7 +637,8 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericWeakInitialisable,
 		IGenericWeakCopyable,
-		IGenericResettable {
+		IGenericResettable,
+		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
 	public unsafe struct BLGlyphBufferCore :

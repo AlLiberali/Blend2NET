@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using static AlLiberali.Blend2NET.PInvoke;
 
 namespace AlLiberali.Blend2NET;
 internal static class Loader {
@@ -40,3 +39,18 @@ internal static class Loader {
 		}
 	}
 }
+#if !NET7_0_OR_GREATER
+/// <inheritdoc/>
+public class ObjectDisposedException(String objectName) : System.ObjectDisposedException(objectName) {
+	// The following method licensed to anyone by the .NET Foundation under the MIT Licence.
+	/// <summary>Throws an <see cref="ObjectDisposedException"/> if the specified <paramref name="condition"/> is <see langword="true"/>.</summary>
+	/// <param name="condition">The condition to evaluate.</param>
+	/// <param name="instance">The object whose type's full name should be included in any resulting <see cref="ObjectDisposedException"/>.</param>
+	/// <exception cref="ObjectDisposedException">The <paramref name="condition"/> is <see langword="true"/>.</exception>
+	public static void ThrowIf(bool condition, Object instance) {
+		if (condition) {
+			throw new ObjectDisposedException(nameof(instance));
+		}
+	}
+}
+#endif

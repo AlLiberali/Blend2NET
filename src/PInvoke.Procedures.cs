@@ -362,7 +362,7 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blStringReset(BLStringCore* self);
 	[DllImport("blend2d")]
-	public static extern unsafe char* blStringGetData(BLStringCore* self);
+	public static extern unsafe Byte* blStringGetData(BLStringCore* self);
 	[DllImport("blend2d")]
 	public static extern unsafe size_t blStringGetSize(BLStringCore* self);
 	[DllImport("blend2d")]

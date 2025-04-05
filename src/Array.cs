@@ -62,7 +62,7 @@ public sealed class Array<T> : BlendObject<BLArrayCore>, IList<T> where T : unma
 	/// A weak copy of <paramref name="other"/> when <paramref name="move"/> is <see langword="false"/>;
 	/// <paramref name="other"/> reset and its members move to this new instance otherwise.
 	/// </summary>
-	/// <param name="other">The other array instance to be weakly copied or reset</param>
+	/// <param name="other">The other object instance to be weakly copied or reset</param>
 	/// <param name="move">Whether to move or to weakly copy</param>
 	public Array(Array<T> other, Boolean move = false) {
 		if (move)

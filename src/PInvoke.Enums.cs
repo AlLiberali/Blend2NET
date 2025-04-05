@@ -323,7 +323,7 @@ public static partial class PInvoke {
 		BL_ORIENTATION_HORIZONTAL = 0,
 		BL_ORIENTATION_VERTICAL = 1
 	}
-	public enum BLFontFaceType : UInt32 {
+	public enum BLFontFaceType : Byte {
 		BL_FONT_FACE_TYPE_NONE = 0,
 		BL_FONT_FACE_TYPE_OPENTYPE = 1
 	}
@@ -623,7 +623,7 @@ public static partial class PInvoke {
 		BL_FONT_FACE_DIAG_WRONG_CMAP_DATA = 0x00000010u,
 		BL_FONT_FACE_DIAG_WRONG_CMAP_FORMAT = 0x00000020u
 	}
-	public enum BLFontOutlineType : UInt32 {
+	public enum BLFontOutlineType : Byte {
 		BL_FONT_OUTLINE_TYPE_NONE = 0,
 		BL_FONT_OUTLINE_TYPE_TRUETYPE = 1,
 		BL_FONT_OUTLINE_TYPE_CFF = 2,

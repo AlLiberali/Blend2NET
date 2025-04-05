@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace AlLiberali.Blend2NET;
 
+/// Convenience extension methods provieded over a selection of the crude unsafe ones under PInvoke.Procedures.cs
 public static partial class PInvoke {
+	#region common
 	/// <summary>
 	/// <para>
 	/// Generic initialisation method for BL*Core types that need initialisation
@@ -291,6 +294,8 @@ public static partial class PInvoke {
 				};
 		}
 	}
+	#endregion common
+	#region array
 	/// <summary>
 	/// Gets the number of elements contained in the <see cref="BLArrayCore"/>.
 	/// </summary>
@@ -459,6 +464,22 @@ public static partial class PInvoke {
 				return blArrayRemoveIndex(pcore, (IntPtr) index);
 		}
 	}
+	#endregion array
+	#region fontface
+	/// <summary>
+	/// Initialises a font face read from <paramref name="filePath"/>
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="filePath">Path to font file</param>
+	/// <param name="readFlags">Memory mapping options</param>
+	/// <returns>The status code returned by the <see cref="blFontFaceCreateFromFile"/> native procedure</returns>
+	public static BLResult Initialise(this ref BLFontFaceCore core, String filePath, BLFileReadFlags readFlags = BLFileReadFlags.BL_FILE_READ_NO_FLAGS) {
+		core.Initialise();
+		unsafe {
+			fixed (BLFontFaceCore* pcore = &core)
+				return blFontFaceCreateFromFile(pcore, filePath, readFlags);
+		}
+	}
 	/// <summary>
 	/// Enquires the full name for the font face.
 	/// </summary>
@@ -531,6 +552,54 @@ public static partial class PInvoke {
 			return Encoding.ASCII.GetString(pchar, length);
 		}
 	}
+	/// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
+	public static Boolean Equals(this ref BLFontFaceCore core, BLFontFaceCore other) {
+		unsafe {
+			fixed (BLFontFaceCore* pcore = &core)
+				return blFontFaceEquals(pcore, &other);
+		}
+	}
+	/// <summary>
+	/// Does what it says on the tin
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Struct of data requested</returns>
+	public static BLFontFaceInfo GetFaceInformation(this ref BLFontFaceCore core) {
+		BLFontFaceInfo ret;
+		unsafe {
+			fixed (BLFontFaceCore* pcore = &core)
+				blFontFaceGetFaceInfo(pcore, &ret);
+		}
+		return ret;
+	}
+	/// <summary>
+	/// Does what it says on the tin
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Struct of data requested</returns>
+	public static BLFontDesignMetrics GetDesignMetrics(this ref BLFontFaceCore core) {
+		BLFontDesignMetrics ret;
+		unsafe {
+			fixed (BLFontFaceCore* pcore = &core)
+				blFontFaceGetDesignMetrics(pcore, &ret);
+		}
+		return ret;
+	}
+	/// <summary>
+	/// Does what it says on the tin
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Struct of data requested</returns>
+	public static BLFontUnicodeCoverage GetUnicodeCoverage(this ref BLFontFaceCore core) {
+		BLFontUnicodeCoverage ret;
+		unsafe {
+			fixed (BLFontFaceCore* pcore = &core)
+				blFontFaceGetUnicodeCoverage(pcore, &ret);
+		}
+		return ret;
+	}
+	#endregion fontface
+	#region imagecodec
 	/// <summary>
 	/// Finds a <see cref="BLImageCodecCore"/> associated with <paramref name="name"/>
 	/// within the <paramref name="codecArray"/> and initialises <paramref name="core"/>
@@ -622,6 +691,23 @@ public static partial class PInvoke {
 		}
 	}
 	/// <summary>
+	/// Populates an uninitialised <see cref="BLArrayCore"/> with <see cref="BLImageCodecCore"/>s
+	/// built into the Blend2D library.
+	/// <para/>
+	/// This method initialises a <see cref="BLArrayCore"/>. Remember to <see cref="Destroy{T}"/>
+	/// this instance and any instance held previously by <paramref name="core"/>.
+	/// </summary>
+	/// <param name="core">The struct to be initialised and populated</param>
+	/// <returns>The status code returned by the <see cref="blImageCodecArrayInitBuiltInCodecs"/> native procedure</returns>
+	public static BLResult PopulateWithBuiltinImageCodecs(this ref BLArrayCore core) {
+		unsafe {
+			fixed (BLArrayCore* pcore = &core)
+				return blImageCodecArrayInitBuiltInCodecs(pcore);
+		}
+	}
+	#endregion imagecodec
+	#region image
+	/// <summary>
 	/// Initialises a <paramref name="width"/> by <paramref name="height"/> image of
 	/// <paramref name="format"/>
 	/// </summary>
@@ -631,9 +717,84 @@ public static partial class PInvoke {
 	/// <param name="format">Colour format of the image</param>
 	/// <returns>The status code returned by the <see cref="blImageCreate"/> native procedure</returns>
 	public static BLResult Initialise(this ref BLImageCore core, UInt32 width, UInt32 height, BLFormat format) {
+		core.Initialise();
 		unsafe {
 			fixed (BLImageCore* pcore = &core)
 				return blImageCreate(pcore, width, height, format);
+		}
+	}
+	/// <summary>
+	/// Initialises an image read from <paramref name="filePath"/> using codecs within <paramref name="codecs"/>
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="filePath">Path to image file</param>
+	/// <param name="codecs">Array of codecs</param>
+	/// <returns>The status code returned by the <see cref="blImageReadFromFile"/> native procedure</returns>
+	public static BLResult Initialise(this ref BLImageCore core, String filePath, ref BLArrayCore codecs) {
+		core.Initialise();
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+			fixed (BLArrayCore* pcodecs = &codecs)
+				return blImageReadFromFile(pcore, filePath, pcodecs);
+		}
+	}
+	/// <summary>
+	/// Initialises an image read from <paramref name="filePath"/> using builtin codecs
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="filePath">Path to image file</param>
+	/// <returns>The status code returned by the <see cref="blImageReadFromFile"/> native procedure</returns>
+	public static BLResult Initialise(this ref BLImageCore core, String filePath) {
+		core.Initialise();
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+				return blImageReadFromFile(pcore, filePath, null);
+		}
+	}
+	/// <summary>
+	/// Initialises an image read from <paramref name="inputStream"/> using codecs within <paramref name="codecs"/>
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="inputStream">Readable stream of an image</param>
+	/// <param name="codecs">Array of codecs</param>
+	/// <returns>
+	/// The status code returned by the <see cref="blImageReadFromData"/> native procedure
+	/// or <see cref="BLResult.BL_ERROR_INVALID_HANDLE"/> if <paramref name="inputStream"/>
+	/// can't be read.
+	/// </returns>
+	public static BLResult Initialise(this ref BLImageCore core, Stream inputStream, ref BLArrayCore codecs) {
+		if (!inputStream.CanRead)
+			return BLResult.BL_ERROR_INVALID_HANDLE;
+		core.Initialise();
+		Byte[] data = new Byte[inputStream.Length];
+		inputStream.Read(data);
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+			fixed (Byte* pdata = data)
+			fixed (BLArrayCore* pcodecs = &codecs)
+				return blImageReadFromData(pcore, pdata, (IntPtr) data.Length, pcodecs);
+		}
+	}
+	/// <summary>
+	/// Initialises an image read from <paramref name="inputStream"/> using builtin codecs
+	/// </summary>
+	/// <param name="core">The struct to be initialised</param>
+	/// <param name="inputStream">Readable stream of an image</param>
+	/// <returns>
+	/// The status code returned by the <see cref="blImageReadFromData"/> native procedure
+	/// or <see cref="BLResult.BL_ERROR_INVALID_HANDLE"/> if <paramref name="inputStream"/>
+	/// can't be read.
+	/// </returns>
+	public static BLResult Initialise(this ref BLImageCore core, Stream inputStream) {
+		if (!inputStream.CanRead)
+			return BLResult.BL_ERROR_INVALID_HANDLE;
+		core.Initialise();
+		Byte[] data = new Byte[inputStream.Length];
+		inputStream.Read(data);
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+			fixed (Byte* pdata = data)
+				return blImageReadFromData(pcore, pdata, (IntPtr) data.Length, null);
 		}
 	}
 	/// <summary>
@@ -668,22 +829,120 @@ public static partial class PInvoke {
 				return blImageScale(pcore, psource, size, filter);
 		}
 	}
-
 	/// <summary>
-	/// Populates an uninitialised <see cref="BLArrayCore"/> with <see cref="BLImageCodecCore"/>s
-	/// built into the Blend2D library.
-	/// <para/>
-	/// This method initialises a <see cref="BLArrayCore"/>. Remember to <see cref="Destroy{T}"/>
-	/// this instance and any instance held previously by <paramref name="core"/>.
+	/// Outputs the image to <paramref name="filePath"/> using <paramref name="codec"/>
 	/// </summary>
-	/// <param name="core">The struct to be initialised and populated</param>
-	/// <returns>The status code returned by the <see cref="blImageCodecArrayInitBuiltInCodecs"/> native procedure</returns>
-	public static BLResult PopulateWithBuiltinImageCodecs(this ref BLArrayCore core) {
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="filePath">Output path</param>
+	/// <param name="codec">Image format to use</param>
+	/// <returns>The status code returned by <see cref="blImageWriteToFile"/> native procedure</returns>
+	public static BLResult WriteToFile(this ref BLImageCore core, String filePath, ref BLImageCodecCore codec) {
 		unsafe {
-			fixed (BLArrayCore* pcore = &core)
-				return blImageCodecArrayInitBuiltInCodecs(pcore);
+			fixed (BLImageCore* pcore = &core)
+			fixed (BLImageCodecCore* pcodec = &codec)
+				return blImageWriteToFile(pcore, filePath, pcodec);
 		}
 	}
+	/// <summary>
+	/// Outputs the image to <paramref name="filePath"/> using a builtin codec that corrosponds to the
+	/// file extension specified in <paramref name="filePath"/>
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="filePath">Output path</param>
+	/// <returns>The status code returned by <see cref="blImageWriteToFile"/> native procedure</returns>
+	public static BLResult WriteToFile(this ref BLImageCore core, String filePath) {
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+				return blImageWriteToFile(pcore, filePath, null);
+		}
+	}
+	/// <summary>
+	/// Outputs the image in the format specified by <paramref name="codec"/>
+	/// in form of a <see cref="MemoryStream"/> which can be used with the rest
+	/// of <see cref="System.IO"/> machinery.
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="codec">Image format to use</param>
+	/// <returns>A <see cref="MemoryStream"/> or null if the inners fail</returns>
+	public static MemoryStream? GetOutputStream(this ref BLImageCore core, ref BLImageCodecCore codec) {
+		using Array<Byte> bytes = [];
+		BLResult err;
+		unsafe {
+			fixed (BLImageCore* pcore = &core)
+			fixed (BLImageCodecCore* pcodec = &codec)
+			fixed (BLArrayCore* pbytes = &bytes.core)
+				err = blImageWriteToData(pcore, pbytes, pcodec);
+		}
+		if (err != BLResult.BL_SUCCESS)
+			return null;
+		return new MemoryStream([.. bytes], false);
+	}
+	/// <summary>
+	/// Gets the width of the image
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Width</returns>
+	public static UInt32 GetWidth(this ref BLImageCore core) {
+		unsafe {
+			BLImageData* pdata = stackalloc BLImageData[1];
+			fixed (BLImageCore* pcore = &core)
+				blImageGetData(pcore, pdata);
+			return (UInt32) pdata->size.w;
+		}
+	}
+	/// <summary>
+	/// Gets the height of the image
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Height</returns>
+	public static UInt32 GetHeight(this ref BLImageCore core) {
+		unsafe {
+			BLImageData* pdata = stackalloc BLImageData[1];
+			fixed (BLImageCore* pcore = &core)
+				blImageGetData(pcore, pdata);
+			return (UInt32) pdata->size.h;
+		}
+	}
+	/// <summary>
+	/// Gets the <see cref="BLFormat"/> of the image
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>Pixel format</returns>
+	public static BLFormat GetFormat(this ref BLImageCore core) {
+		unsafe {
+			BLImageData* pdata = stackalloc BLImageData[1];
+			fixed (BLImageCore* pcore = &core)
+				blImageGetData(pcore, pdata);
+			return pdata->format;
+		}
+	}
+	#endregion image
+	#region context
+	/// <summary>
+	/// Flushes drawing calls in the <paramref name="core"/> command queue
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <param name="flag">Asynchrony</param>
+	/// <returns>The status code returned by <see cref="blContextFlush"/> native procedure</returns>
+	public static BLResult Flush(this ref BLContextCore core, BLContextFlushFlags flag = BLContextFlushFlags.BL_CONTEXT_FLUSH_NO_FLAGS) {
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+				return blContextFlush(pcore, flag);
+		}
+	}
+	/// <summary>
+	/// Flushes drawing queue, detaches from the rendering target, releases resources and resets <paramref name="core"/> to null instance
+	/// </summary>
+	/// <param name="core">The struct holding the object</param>
+	/// <returns>The status code returned by <see cref="blContextEnd"/> native procedure</returns>
+	public static BLResult End(this ref BLContextCore core) {
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+				return blContextEnd(pcore);
+		}
+	}
+	#endregion context
+	#region pixelconverter
 	/// <summary>
 	/// Initialises the converter into a valid state, ready to be used to convert betwixt the relevant formats.
 	/// </summary>
@@ -757,6 +1016,8 @@ public static partial class PInvoke {
 				return blPixelConverterConvert(pcore, destination.pixelData, destination.stride, source.pixelData, source.stride, (UInt32) source.size.w, (UInt32) source.size.h, options);
 		}
 	}
+	#endregion pixelconverter
+	#region random
 	/// <summary>
 	/// Resets the PRNG with the given seed
 	/// </summary>
@@ -793,6 +1054,8 @@ public static partial class PInvoke {
 				return blRandomNextDouble(prandom);
 		}
 	}
+	#endregion random
+	#region runtimescope
 	/// <summary>
 	/// <para>
 	/// Blend2D runtime scope sets up the runtime such that floating point operations
@@ -838,6 +1101,8 @@ public static partial class PInvoke {
 				return blRuntimeScopeIsActive(pscope);
 		}
 	}
+	#endregion runtimescope
+	#region format
 	/// <summary>
 	/// Sanitises this structure, ensuring valid and simplified format information,
 	/// as expected by the rest of the Blend2D machinery.
@@ -863,6 +1128,8 @@ public static partial class PInvoke {
 				return blFormatInfoQuery(pinfo, format);
 		}
 	}
+	#endregion format
+	#region runtime
 	/// <summary>
 	/// Populates the struct with information about the underlying Blend2D
 	/// shared native library's compile-time properties
@@ -932,4 +1199,5 @@ public static partial class PInvoke {
 				return Marshal.PtrToStringAnsi((IntPtr) pinfo->cpuBrand, 64);
 		}
 	}
+	#endregion runtime
 }

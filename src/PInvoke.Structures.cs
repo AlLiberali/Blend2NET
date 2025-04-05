@@ -368,14 +368,14 @@ public static partial class PInvoke {
 		public Single strikethroughThickness;
 	}
 	public unsafe struct BLFontFaceInfo {
-		public uint8_t faceType;
-		public uint8_t outlineType;
+		public BLFontFaceType faceType;
+		public BLFontOutlineType outlineType;
 		internal fixed uint8_t reserved8[2];
 		public uint32_t glyphCount;
 		public uint32_t revision;
 		public uint32_t faceIndex;
-		public uint32_t faceFlags;
-		public uint32_t diagFlags;
+		public BLFontFaceFlags faceFlags;
+		public BLFontFaceDiagFlags diagFlags;
 		internal fixed uint32_t reserved[2];
 	}
 	public struct BLFontFeatureItem {

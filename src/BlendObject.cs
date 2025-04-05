@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static AlLiberali.Blend2NET.PInvoke;
 
 namespace AlLiberali.Blend2NET;
@@ -7,8 +8,14 @@ namespace AlLiberali.Blend2NET;
 /// Not to be implemented by users
 /// </summary>
 public abstract class BlendObject<T> : IDisposable where T : unmanaged, IGenericMoveInitialisableAndDestroyable {
-	private protected T core;
-	private protected virtual void Destroy() => core.Destroy();
+	internal T core;
+	internal readonly List<IDisposable> DependentDisposables = [];
+	private protected BlendObject() {
+	}
+	private protected virtual void Destroy() {
+		DependentDisposables.ForEach(disposable => disposable.Dispose());
+		core.Destroy();
+	}
 	#region IDisposable
 	private protected Boolean disposedValue;
 	/// <inheritdoc/>

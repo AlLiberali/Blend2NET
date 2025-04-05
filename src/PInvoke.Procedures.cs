@@ -19,7 +19,9 @@ namespace AlLiberali.Blend2NET;
 #pragma warning disable CA1711
 #pragma warning disable CA2101
 
+/// Platform/Invoke method signatures to the Blend2D C API
 public static partial class PInvoke {
+	#region object
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blObjectAllocImpl(BLObjectCore* self, BLObjectInfoBits objectInfo, size_t implSize);
 	[DllImport("blend2d")]
@@ -66,6 +68,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blObjectSetPropertyUInt64(void* self, [MarshalAs(UnmanagedType.LPUTF8Str)] String name, size_t nameSize, uint64_t value);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blObjectSetPropertyDouble(void* self, [MarshalAs(UnmanagedType.LPUTF8Str)] String name, size_t nameSize, Double value);
+	#endregion object
+	#region array
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blArrayInit(BLArrayCore* self, BLObjectType arrayType);
 	[DllImport("blend2d")]
@@ -163,6 +167,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blArrayEquals(BLArrayCore* a, BLArrayCore* b);
+	#endregion array
+	#region bitarray
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blBitArrayInit(BLBitArrayCore* self);
 	[DllImport("blend2d")]
@@ -250,6 +256,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blBitArrayAppendWord(BLBitArrayCore* self, uint32_t wordValue);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blBitArrayAppendWords(BLBitArrayCore* self, uint32_t* wordData, uint32_t wordCount);
+	#endregion bitarray
+	#region bitset
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blBitSetInit(BLBitSetCore* self);
 	[DllImport("blend2d")]
@@ -323,6 +331,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blBitSetClearBit(BLBitSetCore* self, uint32_t bitIndex);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blBitSetClearRange(BLBitSetCore* self, uint32_t rangeStartBit, uint32_t rangeEndBit);
+	#endregion bitset
+	#region file
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFileInit(BLFileCore* self);
 	[DllImport("blend2d")]
@@ -349,6 +359,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blFileSystemReadFile([MarshalAs(UnmanagedType.LPUTF8Str)] String fileName, BLArrayCore* dst, size_t maxSize, BLFileReadFlags readFlags);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFileSystemWriteFile([MarshalAs(UnmanagedType.LPUTF8Str)] String fileName, void* data, size_t size, size_t* bytesWrittenOut);
+	#endregion file
+	#region string
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blStringInit(BLStringCore* self);
 	[DllImport("blend2d")]
@@ -421,6 +433,8 @@ public static partial class PInvoke {
 	public static extern unsafe uint32_t blStringCompare(BLStringCore* a, BLStringCore* b);
 	[DllImport("blend2d")]
 	public static extern unsafe uint32_t blStringCompareData(BLStringCore* self, [MarshalAs(UnmanagedType.LPUTF8Str)] String str, size_t n);
+	#endregion string
+	#region fontdata
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontDataInit(BLFontDataCore* self);
 	[DllImport("blend2d")]
@@ -454,6 +468,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blFontDataGetTableTags(BLFontDataCore* self, uint32_t faceIndex, BLArrayCore* dst);
 	[DllImport("blend2d")]
 	public static extern unsafe size_t blFontDataGetTables(BLFontDataCore* self, uint32_t faceIndex, BLFontTable* dst, BLTag* tags, size_t count);
+	#endregion fontdata
+	#region glyphbuffer
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blGlyphBufferInit(BLGlyphBufferCore* self);
 	[DllImport("blend2d")]
@@ -486,6 +502,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blGlyphBufferSetDebugSink(BLGlyphBufferCore* self, delegate*<char*, size_t, void*, void> sink, void* userData);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blGlyphBufferResetDebugSink(BLGlyphBufferCore* self);
+	#endregion glyphbuffer
+	#region path
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blPathInit(BLPathCore* self);
 	[DllImport("blend2d")]
@@ -608,6 +626,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blStrokeOptionsAssignWeak(BLStrokeOptionsCore* self, BLStrokeOptionsCore* other);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blPathStrokeToSink(BLPathCore* self, BLRange* range, BLStrokeOptionsCore* strokeOptions, BLApproximationOptions* approximationOptions, BLPathCore* a, BLPathCore* b, BLPathCore* c, delegate*<BLPathCore*, BLPathCore*, BLPathCore*, size_t, size_t, void*, BLResult> sink, void* userData);
+	#endregion path
+	#region fontface
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontFaceInit(BLFontFaceCore* self);
 	[DllImport("blend2d")]
@@ -696,6 +716,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blFontFeatureSettingsEquals(BLFontFeatureSettingsCore* a, BLFontFeatureSettingsCore* b);
+	#endregion fontface
+	#region fontvariation
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontVariationSettingsInit(BLFontVariationSettingsCore* self);
 	[DllImport("blend2d")]
@@ -732,6 +754,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blFontVariationSettingsEquals(BLFontVariationSettingsCore* a, BLFontVariationSettingsCore* b);
+	#endregion fontvariation
+	#region font
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontInit(BLFontCore* self);
 	[DllImport("blend2d")]
@@ -799,6 +823,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blFontGetGlyphOutlines(BLFontCore* self, BLGlyphId glyphId, BLMatrix2D* userTransform, BLPathCore* @out, delegate*<BLPathCore*, void*, void*, BLResult> sink, void* userData);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontGetGlyphRunOutlines(BLFontCore* self, BLGlyphRun* glyphRun, BLMatrix2D* userTransform, BLPathCore* @out, delegate*<BLPathCore*, void*, void*, BLResult> sink, void* userData);
+	#endregion font
+	#region matrix
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blMatrix2DSetIdentity(BLMatrix2D* self);
 	[DllImport("blend2d")]
@@ -817,6 +843,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLTransformType blMatrix2DGetType(BLMatrix2D* self);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blMatrix2DMapPointDArray(BLMatrix2D* self, BLPoint* dst, BLPoint* src, size_t count);
+	#endregion matrix
+	#region gradient
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blGradientInit(BLGradientCore* self);
 	[DllImport("blend2d")]
@@ -890,10 +918,14 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blGradientEquals(BLGradientCore* a, BLGradientCore* b);
+	#endregion gradient
+	#region format
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFormatInfoQuery(BLFormatInfo* self, BLFormat format);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFormatInfoSanitize(BLFormatInfo* self);
+	#endregion format
+	#region imagecodec
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageCodecInit(BLImageCodecCore* self);
 	[DllImport("blend2d")]
@@ -930,6 +962,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blImageCodecAddToBuiltIn(BLImageCodecCore* codec);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageCodecRemoveFromBuiltIn(BLImageCodecCore* codec);
+	#endregion imagecodec
+	#region image
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageInit(BLImageCore* self);
 	[DllImport("blend2d")]
@@ -973,6 +1007,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blImageWriteToFile(BLImageCore* self, [MarshalAs(UnmanagedType.LPUTF8Str)] String fileName, BLImageCodecCore* codec);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageWriteToData(BLImageCore* self, BLArrayCore* dst, BLImageCodecCore* codec);
+	#endregion image
+	#region pattern
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blPatternInit(BLPatternCore* self);
 	[DllImport("blend2d")]
@@ -1018,6 +1054,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blPatternEquals(BLPatternCore* a, BLPatternCore* b);
+	#endregion pattern
+	#region var
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blVarInitType(void* self, BLObjectType type);
 	[DllImport("blend2d")]
@@ -1122,6 +1160,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blVarStrictEquals(void* a, void* b);
+	#endregion var
+	#region context
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blContextInit(BLContextCore* self);
 	[DllImport("blend2d")]
@@ -1502,6 +1542,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blContextBlitScaledImageI(BLContextCore* self, BLRectI* rect, BLImageCore* img, BLRectI* imgArea);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blContextBlitScaledImageD(BLContextCore* self, BLRect* rect, BLImageCore* img, BLRectI* imgArea);
+	#endregion context
+	#region fontmanager
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontManagerInit(BLFontManagerCore* self);
 	[DllImport("blend2d")]
@@ -1536,6 +1578,8 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blFontManagerEquals(BLFontManagerCore* a, BLFontManagerCore* b);
+	#endregion fontmanager
+	#region imagedecoder
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageDecoderInit(BLImageDecoderCore* self);
 	[DllImport("blend2d")]
@@ -1556,6 +1600,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blImageDecoderReadInfo(BLImageDecoderCore* self, BLImageInfo* infoOut, uint8_t* data, size_t size);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageDecoderReadFrame(BLImageDecoderCore* self, BLImageCore* imageOut, uint8_t* data, size_t size);
+	#endregion imagedecoder
+	#region imageencoder
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageEncoderInit(BLImageEncoderCore* self);
 	[DllImport("blend2d")]
@@ -1574,6 +1620,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blImageEncoderRestart(BLImageEncoderCore* self);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blImageEncoderWriteFrame(BLImageEncoderCore* self, BLArrayCore* dst, BLImageCore* image);
+	#endregion imageencoder
+	#region pixelconverter
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blPixelConverterInit(BLPixelConverterCore* self);
 	[DllImport("blend2d")]
@@ -1588,6 +1636,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blPixelConverterCreate(BLPixelConverterCore* self, BLFormatInfo* dstInfo, BLFormatInfo* srcInfo, BLPixelConverterCreateFlags createFlags);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blPixelConverterConvert(BLPixelConverterCore* self, void* dstData, intptr_t dstStride, void* srcData, intptr_t srcStride, uint32_t w, uint32_t h, BLPixelConverterOptions* options);
+	#endregion
+	#region random
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blRandomReset(BLRandom* self, uint64_t seed);
 	[DllImport("blend2d")]
@@ -1596,10 +1646,14 @@ public static partial class PInvoke {
 	public static extern unsafe uint64_t blRandomNextUInt64(BLRandom* self);
 	[DllImport("blend2d")]
 	public static extern unsafe Double blRandomNextDouble(BLRandom* self);
+	#endregion random
+	#region runtime
 	[DllImport("blend2d")]
 	public static extern BLResult blRuntimeCleanup(BLRuntimeCleanupFlags cleanupFlags);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blRuntimeQueryInfo(BLRuntimeInfoType infoType, void* infoOut);
+	#endregion runtime
+	#region runtimescope
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blRuntimeScopeBegin(BLRuntimeScopeCore* self);
 	[DllImport("blend2d")]
@@ -1607,4 +1661,5 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blRuntimeScopeIsActive(BLRuntimeScopeCore* self);
+	#endregion runtimescope
 }

@@ -165,6 +165,7 @@ public sealed class Array<T> : BlendObject<BLArrayCore>, IList<T> where T : unma
 	}
 	/// <inheritdoc/>
 	public void Insert(Int32 index, T item) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
 		BLResult err = core.Insert(index, item);
 		if (err == BLResult.BL_ERROR_INVALID_KEY)
 			throw new ArgumentOutOfRangeException(nameof(index));

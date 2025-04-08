@@ -81,6 +81,7 @@ public sealed class Image : BlendObject<BLImageCore> {
 	}
 	/// <inheritdoc cref="ICloneable.Clone"/>
 	public Image Clone() {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
 		Image ret = new();
 		core.DeepCopy(ref ret.core);
 		return ret;
@@ -98,6 +99,7 @@ public sealed class Image : BlendObject<BLImageCore> {
 	/// <param name="height">Target height</param>
 	/// <param name="filter">Scaling method</param>
 	public void Scale(UInt32 width, UInt32 height, BLImageScaleFilter filter = BLImageScaleFilter.BL_IMAGE_SCALE_FILTER_LANCZOS) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
 		BLImageCore temp = default;
 		temp.Initialise(width, height, core.GetFormat());
 		if (temp.Scale(ref core, (Int32) width, (Int32) height, filter) != BLResult.BL_SUCCESS)
@@ -106,9 +108,20 @@ public sealed class Image : BlendObject<BLImageCore> {
 		core = temp;
 	}
 	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="filePath"></param>
+	public void Save(String filePath) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		core.WriteToFile(filePath);
+	}
+	/// <summary>
 	/// Begins creation of a drawing context atop the image.
 	/// </summary>
-	public ImageContextBuilder CreateContext() => new(this);
+	public ImageContextBuilder CreateContext() {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		return new(this);
+	}
 	/// <summary>
 	/// Builder pattern implementation for the creation of <see cref="Context"/>s atop an <see cref="Image"/>
 	/// </summary>

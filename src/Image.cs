@@ -108,12 +108,52 @@ public sealed class Image : BlendObject<BLImageCore> {
 		core = temp;
 	}
 	/// <summary>
-	/// 
+	/// Saves image to <paramref name="filePath"/>; Its encoding format determined by its extension
 	/// </summary>
 	/// <param name="filePath"></param>
 	public void Save(String filePath) {
 		ObjectDisposedException.ThrowIf(disposedValue, this);
 		core.WriteToFile(filePath);
+	}
+	/// <summary>
+	/// Saves image to <paramref name="filePath"/>; <paramref name="encoding"/> as its format
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <param name="encoding"></param>
+	public void Save(String filePath, ImageEncoding encoding) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		BLArrayCore builtins = default;
+		builtins.PopulateWithBuiltinImageCodecs();
+		BLImageCodecCore codec = default;
+		codec.FindByName(encoding switch {
+			ImageEncoding.BMP => "bmp",
+			ImageEncoding.JPEG => "jpg",
+			ImageEncoding.PNG => "png",
+			ImageEncoding.QOI => "qoi",
+			_ => ""
+		}, ref builtins);
+		core.WriteToFile(filePath);
+	}
+	/// <summary>
+	/// Encodings supported by <see cref="Save(string, ImageEncoding)"/>
+	/// </summary>
+	public enum ImageEncoding {
+		/// <summary>
+		/// Bitmap
+		/// </summary>
+		BMP,
+		/// <summary>
+		/// Joint Photographic Expert Group
+		/// </summary>
+		JPEG,
+		/// <summary>
+		/// Portable Network Graphics
+		/// </summary>
+		PNG,
+		/// <summary>
+		/// Quite OK Image
+		/// </summary>
+		QOI
 	}
 	/// <summary>
 	/// Begins creation of a drawing context atop the image.

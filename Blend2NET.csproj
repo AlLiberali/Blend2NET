@@ -55,12 +55,4 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="src\Oak2D\Colour\" />
-	  <Folder Include="src\Oak2D\Font\" />
-	  <Folder Include="src\Oak2D\Geometry\" />
-	  <Folder Include="src\Oak2D\Image\Renderable\" />
-	  <Folder Include="src\Oak2D\Print\" />
-	</ItemGroup>
-
 </Project>

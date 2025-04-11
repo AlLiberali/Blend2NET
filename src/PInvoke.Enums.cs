@@ -93,7 +93,10 @@ public static partial class PInvoke {
 		BL_ERROR_FONT_CFF_INVALID_DATA,
 		BL_ERROR_FONT_PROGRAM_TERMINATED,
 		BL_ERROR_GLYPH_SUBSTITUTION_TOO_LARGE,
-		BL_ERROR_INVALID_GLYPH
+		BL_ERROR_INVALID_GLYPH,
+		GenericManagedError = 0x00100000,
+		ArgumentError,
+		NoSuchCookieError
 	}
 	public enum BLByteOrder : UInt32 {
 		BL_BYTE_ORDER_LE = 0,
@@ -587,11 +590,11 @@ public static partial class PInvoke {
 		BL_STROKE_TRANSFORM_ORDER_AFTER = 0,
 		BL_STROKE_TRANSFORM_ORDER_BEFORE = 1
 	}
-	public enum BLFlattenMode : UInt32 {
+	public enum BLFlattenMode : Byte {
 		BL_FLATTEN_MODE_DEFAULT = 0,
 		BL_FLATTEN_MODE_RECURSIVE = 1
 	}
-	public enum BLOffsetMode : UInt32 {
+	public enum BLOffsetMode : Byte {
 		BL_OFFSET_MODE_DEFAULT = 0,
 		BL_OFFSET_MODE_ITERATIVE = 1
 	}

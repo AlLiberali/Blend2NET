@@ -12,13 +12,19 @@ public sealed class Image : BlendObject<BLImageCore> {
 	/// Width of the image
 	/// </summary>
 	public UInt32 Width {
-		get => core.GetWidth();
+		get {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			return core.GetWidth();
+		}
 	}
 	/// <summary>
 	/// Height of the image
 	/// </summary>
 	public UInt32 Height {
-		get => core.GetHeight();
+		get {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			return core.GetHeight();
+		}
 	}
 	/// <summary>
 	/// Pixel format of the image
@@ -26,8 +32,14 @@ public sealed class Image : BlendObject<BLImageCore> {
 	/// Note that setting this can be lossy if you convert from a wider channel format to a narrower one
 	/// </summary>
 	public BLFormat Format {
-		get => core.GetFormat();
-		set => core.Convert(value);
+		get {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			return core.GetFormat();
+		}
+		set {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			core.Convert(value);
+		}
 	}
 	/// <summary>
 	/// Instantiates an empty image of <see cref="BLFormat.BL_FORMAT_NONE"/> pixel format

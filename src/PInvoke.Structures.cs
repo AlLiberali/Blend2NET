@@ -61,6 +61,7 @@ public static partial class PInvoke {
 	public struct BLContextCookie {
 		internal UInt64 data0;
 		internal UInt64 data1;
+		internal UInt64 count;
 	}
 	public struct BLRuntimeScopeCore {
 		internal UInt32 data0;
@@ -255,6 +256,49 @@ public static partial class PInvoke {
 		public Double m11;
 		public Double m20;
 		public Double m21;
+		public BLMatrix2D() {
+			Scaling(1, 1);
+		}
+		/// <returns>Itself</returns>
+		public BLMatrix2D Rotation(Double angle, Double x, Double y) {
+			m00 = Math.Cos(angle);
+			m01 = Math.Sin(angle);
+			m10 = -m01;
+			m11 = -m00;
+			m20 = x;
+			m21 = y;
+			return this;
+		}
+		/// <returns>Itself</returns>
+		public BLMatrix2D Skewing(Double xf, Double yf) {
+			m00 = 1;
+			m01 = Math.Tan(yf);
+			m10 = Math.Tan(xf);
+			m11 = 1;
+			m20 = 0;
+			m21 = 0;
+			return this;
+		}
+		/// <returns>Itself</returns>
+		public BLMatrix2D Scaling(Double xf, Double yf) {
+			m00 = xf;
+			m01 = 0;
+			m10 = 0;
+			m11 = yf;
+			m20 = 0;
+			m21 = 0;
+			return this;
+		}
+		/// <returns>Itself</returns>
+		public BLMatrix2D Translation(Double dx, Double dy) {
+			m00 = 1;
+			m01 = 0;
+			m10 = 0;
+			m11 = 1;
+			m20 = dx;
+			m21 = dy;
+			return this;
+		}
 	}
 	public struct BLFontMatrix {
 		public Double m00;

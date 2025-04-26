@@ -128,6 +128,7 @@ public static partial class PInvoke {
 					BLFontManagerCore _ => blFontManagerDestroy((BLFontManagerCore*) pcore),
 					BLImageDecoderCore _ => blImageDecoderDestroy((BLImageDecoderCore*) pcore),
 					BLImageEncoderCore _ => blImageEncoderDestroy((BLImageEncoderCore*) pcore),
+					BLVarCore _ => blVarDestroy(pcore),
 					_ => throw new InvalidOperationException()
 				};
 		}
@@ -172,6 +173,7 @@ public static partial class PInvoke {
 					BLFontManagerCore _ => blFontManagerInitMove((BLFontManagerCore*) pcore, (BLFontManagerCore*) pother),
 					BLImageDecoderCore _ => blImageDecoderInitMove((BLImageDecoderCore*) pcore, (BLImageDecoderCore*) pother),
 					BLImageEncoderCore _ => blImageEncoderInitMove((BLImageEncoderCore*) pcore, (BLImageEncoderCore*) pother),
+					BLVarCore _ => blVarInitMove(pcore, pother),
 					_ => throw new InvalidOperationException()
 				};
 		}

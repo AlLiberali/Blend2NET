@@ -9,11 +9,11 @@ namespace AlLiberali.Blend2NET;
 /// </summary>
 public abstract class BlendObject<T> : IDisposable where T : unmanaged, IGenericMoveInitialisableAndDestroyable {
 	internal T core;
-	internal readonly List<IDisposable> DependentDisposables = [];
+	internal readonly List<IDisposable> dependentDisposables = [];
 	private protected BlendObject() {
 	}
 	private protected virtual void Destroy() {
-		DependentDisposables.ForEach(disposable => disposable.Dispose());
+		dependentDisposables.ForEach(disposable => disposable.Dispose());
 		core.Destroy();
 	}
 	#region IDisposable

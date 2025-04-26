@@ -96,7 +96,9 @@ public static partial class PInvoke {
 		BL_ERROR_INVALID_GLYPH,
 		GenericManagedError = 0x00100000,
 		ArgumentError,
-		NoSuchCookieError
+		NoSuchCookieError,
+		StopNotFound,
+		IndexOutOfRange
 	}
 	public enum BLByteOrder : UInt32 {
 		BL_BYTE_ORDER_LE = 0,

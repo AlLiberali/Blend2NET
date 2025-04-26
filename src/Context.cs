@@ -294,8 +294,7 @@ public sealed class Context : BlendObject<BLContextCore> {
 	/// <returns>The status code returned by <see cref="blContextSave"/> native procedure</returns>
 	public BLResult Push(UInt64 cookieId = 0) {
 		ObjectDisposedException.ThrowIf(disposedValue, this);
-		BLContextCookie cookie;
-		if (!cookieStore.TryGetValue(cookieId, out cookie))
+		if (!cookieStore.TryGetValue(cookieId, out BLContextCookie cookie))
 			cookie.count = 0;
 		BLResult ret;
 		unsafe {

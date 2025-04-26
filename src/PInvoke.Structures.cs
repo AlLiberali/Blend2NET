@@ -261,12 +261,16 @@ public static partial class PInvoke {
 		}
 		/// <returns>Itself</returns>
 		public BLMatrix2D Rotation(Double angle, Double x, Double y) {
-			m00 = Math.Cos(angle);
-			m01 = Math.Sin(angle);
-			m10 = -m01;
-			m11 = -m00;
-			m20 = x;
-			m21 = y;
+			Double cos = Math.Cos(angle);
+			Double sin = Math.Sin(angle);
+			Double tx = x * (1 - cos) + sin * y;
+			Double ty = y * (1 - cos) - sin * x;
+			m20 = tx * m00 + ty * m10 + m20;
+			m21 = tx * m01 + ty * m11 + m21;
+			m00 = sin * m10 + cos * m00;
+			m01 = sin * m11 + cos * m01;
+			m10 = cos * m10 - sin * m00;
+			m11 = cos * m11 - sin * m01;
 			return this;
 		}
 		/// <returns>Itself</returns>
@@ -281,12 +285,12 @@ public static partial class PInvoke {
 		}
 		/// <returns>Itself</returns>
 		public BLMatrix2D Scaling(Double xf, Double yf) {
-			m00 = xf;
-			m01 = 0;
-			m10 = 0;
-			m11 = yf;
-			m20 = 0;
-			m21 = 0;
+			m00 *= xf;
+			m01 *= yf;
+			m10 *= xf;
+			m11 *= yf;
+			m20 *= xf;
+			m21 *= yf;
 			return this;
 		}
 		/// <returns>Itself</returns>
@@ -646,7 +650,9 @@ public static partial class PInvoke {
 		IBlendObjectCore {
 		public BLObjectCore obj;
 	}
-	public struct BLVarCore : IBlendObjectCore {
+	public struct BLVarCore :
+		IBlendObjectCore,
+		IGenericMoveInitialisableAndDestroyable {
 		public BLObjectCore obj;
 	}
 	public struct BLContextCore :

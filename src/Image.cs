@@ -316,7 +316,7 @@ public sealed class Image : BlendObject<BLImageCore> {
 				fixed (BLContextCreateInfo* pinfo = &info)
 					blContextInitAs(pctx, pimg, pinfo);
 			}
-			image.DependentDisposables.Add(ctx);
+			image.dependentDisposables.Add(ctx);
 			return ctx;
 		}
 	}

@@ -168,6 +168,15 @@ public sealed class Image : BlendObject<BLImageCore> {
 		QOI
 	}
 	/// <summary>
+	/// Creates a pattern styling using this image; Initially set to include the entire area of the image.
+	/// </summary>
+	public Pattern CreatePattern() {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		Pattern p = new(this);
+		dependentDisposables.Add(p);
+		return p;
+	}
+	/// <summary>
 	/// Begins creation of a drawing context atop the image.
 	/// </summary>
 	public ImageContextBuilder CreateContext() {

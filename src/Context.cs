@@ -7,7 +7,7 @@ namespace AlLiberali.Blend2NET;
 /// <summary>
 /// Where all the drawing happens
 /// </summary>
-public sealed class Context : BlendObject<BLContextCore> {
+public sealed class Context : BlendObject<BLContextCore>, ITransformable {
 	private readonly SortedList<UInt64, BLContextCookie> cookieStore = [];
 	/// <summary>
 	/// Width of the context in abstract units. Pixels in case of an image
@@ -132,70 +132,55 @@ public sealed class Context : BlendObject<BLContextCore> {
 			}
 		}
 	}
-	/// <summary>
-	/// Curve flattening strategy
-	/// </summary>
-	private BLFlattenMode FlatteningMode {
+	private BLApproximationOptions ApproximationOptions {
+		// TODO: Hacky AF. Ask for API procedures upstream ASAP
 		get {
 			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
+			unsafe {
+				return *(BLApproximationOptions*) ((IntPtr*) *((IntPtr*) core.obj.impl + 1) + 14);
+			}
 		}
 		set {
 			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
+			unsafe {
+				*((BLApproximationOptions*) ((IntPtr*) *((IntPtr*) core.obj.impl + 1) + 14)) = value;
+			}
 		}
+	}
+	/// <summary>
+	/// Curve flattening strategy
+	/// </summary>
+	public BLFlattenMode FlatteningMode {
+		get => ApproximationOptions.flattenMode;
+		set => ApproximationOptions = ApproximationOptions with { flattenMode = value };
 	}
 	/// <summary>
 	/// Curve offsetting strategy
 	/// </summary>
-	private BLOffsetMode OffsettingMode {
-		get {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
-		set {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
+	public BLOffsetMode OffsettingMode {
+		get => ApproximationOptions.offsetMode;
+		set => ApproximationOptions = ApproximationOptions with { offsetMode = value };
 	}
 	/// <summary>
 	/// Curve flattening tolerance
 	/// </summary>
-	private Double FlatteningTolerance {
-		get {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
-		set {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
+	public Double FlatteningTolerance {
+		get => ApproximationOptions.flattenTolerance;
+		set => ApproximationOptions = ApproximationOptions with { flattenTolerance = value };
 	}
 	/// <summary>
 	/// Cubic to quadratic curve simplification tolerance
 	/// </summary>
-	private Double SimplificationTolerance {
-		get {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
-		set {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
+	public Double SimplificationTolerance {
+		get => ApproximationOptions.simplifyTolerance;
+		set => ApproximationOptions = ApproximationOptions with { simplifyTolerance = value };
 	}
 	/// <summary>
 	/// Parameter that affects offsetting behaviour. The effect depends on <see cref="BLOffsetMode"/> set for <see cref="OffsettingMode"/>
 	/// </summary>
-	private Double OffsettingParameter {
-		get {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
-		set {
-			ObjectDisposedException.ThrowIf(disposedValue, this);
-			throw new NotImplementedException();
-		}
+	public Double OffsettingParameter {
+		get => ApproximationOptions.offsetParameter;
+		set => ApproximationOptions = ApproximationOptions with { offsetParameter = value };
 	}
 	/// <summary>
 	/// Meta matrix is a core transformation matrix that is normally
@@ -242,7 +227,11 @@ public sealed class Context : BlendObject<BLContextCore> {
 			return ret;
 		}
 		set {
-			Transform(value, BLTransformOp.BL_TRANSFORM_OP_ASSIGN);
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			unsafe {
+				fixed (BLContextCore* pcore = &core)
+					blContextApplyTransformOp(pcore, BLTransformOp.BL_TRANSFORM_OP_ASSIGN, &value);
+			}
 		}
 	}
 	/// <summary>
@@ -260,31 +249,49 @@ public sealed class Context : BlendObject<BLContextCore> {
 			return ret;
 		}
 	}
-	private BLResult Transform(BLMatrix2D mat, BLTransformOp op) {
+	/// <inheritdoc/>
+	public BLResult Transform(BLMatrix2D mat) {
 		ObjectDisposedException.ThrowIf(disposedValue, this);
 		unsafe {
 			fixed (BLContextCore* pcore = &core)
-				return blContextApplyTransformOp(pcore, op, &mat);
+				return blContextApplyTransformOp(pcore, BLTransformOp.BL_TRANSFORM_OP_TRANSFORM, &mat);
 		}
 	}
-	public BLResult Transform(BLMatrix2D mat) => Transform(mat, BLTransformOp.BL_TRANSFORM_OP_TRANSFORM);
-	public BLResult Translate(Double dx, Double dy) => Transform(new BLMatrix2D().Translation(dx, dy), BLTransformOp.BL_TRANSFORM_OP_TRANSLATE);
-	public BLResult Scale(Double factor) => Transform(new BLMatrix2D().Scaling(factor, factor), BLTransformOp.BL_TRANSFORM_OP_SCALE);
-	public BLResult Scale(Double xf, Double yf) => Transform(new BLMatrix2D().Scaling(xf, yf), BLTransformOp.BL_TRANSFORM_OP_SCALE);
-	public BLResult Skew(Double xf, Double yf) => Transform(new BLMatrix2D().Skewing(xf, yf), BLTransformOp.BL_TRANSFORM_OP_SKEW);
-	public BLResult Rotate(Double angle) => Transform(new BLMatrix2D().Rotation(angle, 0, 0), BLTransformOp.BL_TRANSFORM_OP_ROTATE);
-	public BLResult Rotate(Double angle, Double xc, Double yc) => Transform(new BLMatrix2D().Rotation(angle, xc, yc), BLTransformOp.BL_TRANSFORM_OP_ROTATE_PT);
-	public BLResult PostTransform(BLMatrix2D mat) => Transform(mat, BLTransformOp.BL_TRANSFORM_OP_POST_TRANSFORM);
-	public BLResult PostTranslate(Double dx, Double dy) => Transform(new BLMatrix2D().Translation(dx, dy), BLTransformOp.BL_TRANSFORM_OP_POST_TRANSLATE);
-	public BLResult PostScale(Double factor) => Transform(new BLMatrix2D().Scaling(factor, factor), BLTransformOp.BL_TRANSFORM_OP_POST_SCALE);
-	public BLResult PostScale(Double xf, Double yf) => Transform(new BLMatrix2D().Scaling(xf, yf), BLTransformOp.BL_TRANSFORM_OP_POST_SCALE);
-	public BLResult PostSkew(Double xf, Double yf) => Transform(new BLMatrix2D().Skewing(xf, yf), BLTransformOp.BL_TRANSFORM_OP_POST_SKEW);
-	public BLResult PostRotate(Double angle) => Transform(new BLMatrix2D().Rotation(angle, 0, 0), BLTransformOp.BL_TRANSFORM_OP_POST_ROTATE);
-	public BLResult PostRotate(Double angle, Double xc, Double yc) => Transform(new BLMatrix2D().Rotation(angle, xc, yc), BLTransformOp.BL_TRANSFORM_OP_POST_ROTATE_PT);
+	/// <inheritdoc/>
+	public BLResult PostTransform(BLMatrix2D mat) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+				return blContextApplyTransformOp(pcore, BLTransformOp.BL_TRANSFORM_OP_POST_TRANSFORM, &mat);
+		}
+	}
+	/// <inheritdoc/>
+	public void ResetTransform() => UserTransform = BLMatrix2D.Identity;
+	/// <summary>
+	/// Clips drawing operations to the context edges
+	/// </summary>
+	/// <returns>The status code returned by <see cref="blContextClipToRectD"/> native procedure</returns>
+	public BLResult Clip() => Clip(new BLRect() { y = 0, x = 0, w = Width, h = Height });
+	/// <summary>
+	/// Clips drawing operations to the boundary box specified by <paramref name="rect"/>
+	/// </summary>
+	/// <param name="rect">Boundary box</param>
+	/// <returns>The status code returned by <see cref="blContextClipToRectD"/> native procedure</returns>
 	public BLResult Clip(BLRect rect) {
 		unsafe {
 			fixed (BLContextCore* pcore = &core)
 				return blContextClipToRectD(pcore, &rect);
+		}
+	}
+	/// <summary>
+	/// Clips drawing operations to the boundary box specified by <paramref name="rect"/>
+	/// </summary>
+	/// <param name="rect">Boundary box</param>
+	/// <returns>The status code returned by <see cref="blContextClipToRectI"/> native procedure</returns>
+	public BLResult Clip(BLRectI rect) {
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+				return blContextClipToRectI(pcore, &rect);
 		}
 	}
 	/// <summary>
@@ -382,6 +389,141 @@ public sealed class Context : BlendObject<BLContextCore> {
 		unsafe {
 			fixed (BLContextCore* pcore = &core)
 				return blContextClearRectD(pcore, &rect);
+		}
+	}
+	/// <summary>
+	/// Fills the entire context using <paramref name="style"/>
+	/// </summary>
+	/// <param name="style">Styling to be used</param>
+	/// <returns>The status code returned by <see cref="blContextFillAllExt"/> native procedure</returns>
+	public BLResult Fill(Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLVarCore* pstyle = &style.core)
+				return blContextFillAllExt(pcore, pstyle);
+		}
+	}
+	/// <summary>
+	/// Blits an area bound by <paramref name="src"/> within <paramref name="img"/>
+	/// upon the context starting at <paramref name="dst"/> point
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <param name="src">Area of image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitImageD"/> native procedure</returns>
+	public BLResult Blit(BLPoint dst, Image img, BLRectI src) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitImageD(pcore, &dst, pimg, &src);
+		}
+	}
+	/// <summary>
+	/// Blits the image, <paramref name="img"/>, upon the context starting at <paramref name="dst"/> point
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitImageD"/> native procedure</returns>
+	public BLResult Blit(BLPoint dst, Image img) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitImageD(pcore, &dst, pimg, null);
+		}
+	}
+	/// <summary>
+	/// Blits an area bound by <paramref name="src"/> within <paramref name="img"/>
+	/// upon the context starting at <paramref name="dst"/> point
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <param name="src">Area of image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitImageI"/> native procedure</returns>
+	public BLResult Blit(BLPointI dst, Image img, BLRectI src) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitImageI(pcore, &dst, pimg, &src);
+		}
+	}
+	/// <summary>
+	/// Blits the image, <paramref name="img"/>, upon the context starting at <paramref name="dst"/> point
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitImageI"/> native procedure</returns>
+	public BLResult Blit(BLPointI dst, Image img) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitImageI(pcore, &dst, pimg, null);
+		}
+	}
+	/// <summary>
+	/// Blits an area bound by <paramref name="src"/> within <paramref name="img"/>
+	/// upon the context, scaled to fit in the <paramref name="dst"/> boundary box
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <param name="src">Area of image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitScaledImageD"/> native procedure</returns>
+	public BLResult BlitScaled(BLRect dst, Image img, BLRectI src) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitScaledImageD(pcore, &dst, pimg, &src);
+		}
+	}
+	/// <summary>
+	/// Blits the image, <paramref name="img"/>, upon the context,
+	/// scaled to fit in the <paramref name="dst"/> boundary box
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitScaledImageD"/> native procedure</returns>
+	public BLResult BlitScaled(BLRect dst, Image img) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitScaledImageD(pcore, &dst, pimg, null);
+		}
+	}
+	/// <summary>
+	/// Blits an area bound by <paramref name="src"/> within <paramref name="img"/>
+	/// upon the context, scaled to fit in the <paramref name="dst"/> boundary box
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <param name="src">Area of image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitScaledImageI"/> native procedure</returns>
+	public BLResult BlitScaled(BLRectI dst, Image img, BLRectI src) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitScaledImageI(pcore, &dst, pimg, &src);
+		}
+	}
+	/// <summary>
+	/// Blits the image, <paramref name="img"/>, upon the context,
+	/// scaled to fit in the <paramref name="dst"/> boundary box
+	/// </summary>
+	/// <param name="dst">Blitting origin point</param>
+	/// <param name="img">The image to be blitted</param>
+	/// <returns>The status code returned by <see cref="blContextBlitScaledImageI"/> native procedure</returns>
+	public BLResult BlitScaled(BLRectI dst, Image img) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLImageCore* pimg = &img.core)
+				return blContextBlitScaledImageI(pcore, &dst, pimg, null);
 		}
 	}
 }

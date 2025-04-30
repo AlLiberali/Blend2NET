@@ -898,7 +898,7 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blGradientRemoveStop(BLGradientCore* self, size_t index);
 	[DllImport("blend2d")]
-	public static extern unsafe BLResult blGradientRemoveStopByOffset(BLGradientCore* self, Double offset, uint32_t all);
+	public static extern unsafe BLResult blGradientRemoveStopByOffset(BLGradientCore* self, Double offset, [MarshalAs(UnmanagedType.U1)] Boolean all);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blGradientRemoveStopsByIndex(BLGradientCore* self, size_t rStart, size_t rEnd);
 	[DllImport("blend2d")]

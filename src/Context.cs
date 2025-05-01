@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using static AlLiberali.Blend2NET.PInvoke;
 
 namespace AlLiberali.Blend2NET;
@@ -249,6 +250,25 @@ public sealed class Context : BlendObject<BLContextCore>, ITransformable {
 			return ret;
 		}
 	}
+	/// <summary>
+	/// Width of the stroking "pen"
+	/// </summary>
+	public Double StrokeWidth {
+		get {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			unsafe {
+				fixed (BLContextCore* pcore = &core)
+					return blContextGetStrokeWidth(pcore);
+			}
+		}
+		set {
+			ObjectDisposedException.ThrowIf(disposedValue, this);
+			unsafe {
+				fixed (BLContextCore* pcore = &core)
+					blContextSetStrokeWidth(pcore, value);
+			}
+		}
+	}
 	/// <inheritdoc/>
 	public BLResult Transform(BLMatrix2D mat) {
 		ObjectDisposedException.ThrowIf(disposedValue, this);
@@ -404,6 +424,138 @@ public sealed class Context : BlendObject<BLContextCore>, ITransformable {
 				return blContextFillAllExt(pcore, pstyle);
 		}
 	}
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BLResult FillGeometry<TGeom>(BLGeometryType type, TGeom geom, Style style) where TGeom : unmanaged {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextFillGeometryExt(pcore, type, &geom, pstyle);
+		}
+	}
+	/// <summary>
+	/// Fill operation over the area specified by <paramref name="geom"/> using <paramref name="style"/>
+	/// </summary>
+	/// <param name="geom">Shape to be filled</param>
+	/// <param name="style">Styling to be used</param>
+	/// <returns>The status code returned by the relevant native procedure</returns>
+	public BLResult FillRectangle(BLRect geom, Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextFillRectDExt(pcore, &geom, pstyle);
+		}
+	}
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillRectangle(BLRectI geom, Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextFillRectIExt(pcore, &geom, pstyle);
+		}
+	}
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillBox(BLBox geom, Style style) {
+		(geom.x0, geom.x1) = geom.x0 < geom.x1 ? (geom.x0, geom.x1) : (geom.x1, geom.x0);
+		(geom.y0, geom.y1) = geom.y0 < geom.y1 ? (geom.y0, geom.y1) : (geom.y1, geom.y0);
+		geom.x1 -= geom.x0;
+		geom.y1 -= geom.y0;
+		unsafe {
+			return FillRectangle(*(BLRect*) &geom, style);
+		}
+	}
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillBox(BLBoxI geom, Style style) {
+		(geom.x0, geom.x1) = geom.x0 < geom.x1 ? (geom.x0, geom.x1) : (geom.x1, geom.x0);
+		(geom.y0, geom.y1) = geom.y0 < geom.y1 ? (geom.y0, geom.y1) : (geom.y1, geom.y0);
+		geom.x1 -= geom.x0;
+		geom.y1 -= geom.y0;
+		unsafe {
+			return FillRectangle(*(BLRectI*) &geom, style);
+		}
+	}
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillCircle(BLCircle geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_CIRCLE, geom, style);
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillEllipse(BLEllipse geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_ELLIPSE, geom, style);
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillRoundRectangle(BLRoundRect geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_ROUND_RECT, geom, style);
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillChord(BLArc geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_CHORD, geom, style);
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillPie(BLArc geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_PIE, geom, style);
+	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
+	public BLResult FillTriangle(BLTriangle geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_TRIANGLE, geom, style);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BLResult StrokeGeometry<TGeom>(BLGeometryType type, TGeom geom, Style style) where TGeom : unmanaged {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextStrokeGeometryExt(pcore, type, &geom, pstyle);
+		}
+	}
+	/// <summary>
+	/// Stroke operation enclosing the area specified by <paramref name="geom"/> using <paramref name="style"/>
+	/// </summary>
+	/// <param name="geom">Shape to be filled</param>
+	/// <param name="style">Styling to be used</param>
+	/// <returns>The status code returned by the relevant native procedure</returns>
+	public BLResult StrokeRectangle(BLRect geom, Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextStrokeRectDExt(pcore, &geom, pstyle);
+		}
+	}
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeRectangle(BLRectI geom, Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (void* pstyle = &style.core)
+				return blContextStrokeRectIExt(pcore, &geom, pstyle);
+		}
+	}
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeBox(BLBox geom, Style style) {
+		(geom.x0, geom.x1) = geom.x0 < geom.x1 ? (geom.x0, geom.x1) : (geom.x1, geom.x0);
+		(geom.y0, geom.y1) = geom.y0 < geom.y1 ? (geom.y0, geom.y1) : (geom.y1, geom.y0);
+		geom.x1 -= geom.x0;
+		geom.y1 -= geom.y0;
+		unsafe {
+			return StrokeRectangle(*(BLRect*) &geom, style);
+		}
+	}
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeBox(BLBoxI geom, Style style) {
+		(geom.x0, geom.x1) = geom.x0 < geom.x1 ? (geom.x0, geom.x1) : (geom.x1, geom.x0);
+		(geom.y0, geom.y1) = geom.y0 < geom.y1 ? (geom.y0, geom.y1) : (geom.y1, geom.y0);
+		geom.x1 -= geom.x0;
+		geom.y1 -= geom.y0;
+		unsafe {
+			return StrokeRectangle(*(BLRectI*) &geom, style);
+		}
+	}
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeLine(BLLine geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_LINE, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeCircle(BLCircle geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_CIRCLE, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeEllipse(BLEllipse geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_ELLIPSE, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeRoundRectangle(BLRoundRect geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_ROUND_RECT, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeArc(BLArc geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_ARC, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeChord(BLArc geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_CHORD, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokePie(BLArc geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_PIE, geom, style);
+	/// <inheritdoc cref="StrokeRectangle(BLRect, Style)"/>
+	public BLResult StrokeTriangle(BLTriangle geom, Style style) => StrokeGeometry(BLGeometryType.BL_GEOMETRY_TYPE_TRIANGLE, geom, style);
 	/// <summary>
 	/// Blits an area bound by <paramref name="src"/> within <paramref name="img"/>
 	/// upon the context starting at <paramref name="dst"/> point

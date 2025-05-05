@@ -332,7 +332,8 @@ public static partial class PInvoke {
 		BL_FONT_FACE_TYPE_NONE = 0,
 		BL_FONT_FACE_TYPE_OPENTYPE = 1
 	}
-	public enum BLFontStretch : UInt32 {
+	public enum BLFontStretch : Byte {
+		BL_FONT_STRETCH_INVALID = 0,
 		BL_FONT_STRETCH_ULTRA_CONDENSED = 1,
 		BL_FONT_STRETCH_EXTRA_CONDENSED = 2,
 		BL_FONT_STRETCH_CONDENSED = 3,
@@ -343,12 +344,13 @@ public static partial class PInvoke {
 		BL_FONT_STRETCH_EXTRA_EXPANDED = 8,
 		BL_FONT_STRETCH_ULTRA_EXPANDED = 9
 	}
-	public enum BLFontStyle : UInt32 {
+	public enum BLFontStyle : Byte {
 		BL_FONT_STYLE_NORMAL = 0,
 		BL_FONT_STYLE_OBLIQUE = 1,
 		BL_FONT_STYLE_ITALIC = 2
 	}
-	public enum BLFontWeight : UInt32 {
+	public enum BLFontWeight : UInt16 {
+		BL_FONT_WEIGHT_INVALID = 0,
 		BL_FONT_WEIGHT_THIN = 100,
 		BL_FONT_WEIGHT_EXTRA_LIGHT = 200,
 		BL_FONT_WEIGHT_LIGHT = 300,

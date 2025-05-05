@@ -600,6 +600,70 @@ public static partial class PInvoke {
 		}
 		return ret;
 	}
+	/// <summary>
+	/// Whether the font uses typographic family and subfamily names
+	/// </summary>
+	public static Boolean HasTypographicNames(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_TYPOGRAPHIC_NAMES) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font uses typographic metrics
+	/// </summary>
+	public static Boolean HasTypographicMetrics(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_TYPOGRAPHIC_METRICS) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font provides character to glyph mapping
+	/// </summary>
+	public static Boolean HasCharacterToGlyphMapping(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_CHAR_TO_GLYPH_MAPPING) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has horizontal glyph metrics (advances, side bearings)
+	/// </summary>
+	public static Boolean HasHorizontalMetrics(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_HORIZONTAL_METRICS) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has horizontal glyph metrics (advances, side bearings)
+	/// </summary>
+	public static Boolean HasVerticalMetrics(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_VERTICAL_METRICS) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has OpenType features (GDEF, GPOS, GSUB)
+	/// </summary>
+	public static Boolean HasOpenTypeFeatures(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_OPENTYPE_FEATURES) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has legacy horizontal kerning table
+	/// </summary>
+	public static Boolean HasHorizontalKerning(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_HORIZONTAL_KERNING) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has legacy vertical kerning table
+	/// </summary>
+	public static Boolean HasVerticalKerning(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_VERTICAL_KERNING) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has PANOSE classification
+	/// </summary>
+	public static Boolean HasPanoseData(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_PANOSE_DATA) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has Unicode coverage information embedded
+	/// </summary>
+	public static Boolean HasUnicodeCoverageInformation(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_UNICODE_COVERAGE) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font Y-axis baseline lies at zero
+	/// </summary>
+	public static Boolean HasBaselineAtZero(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_BASELINE_Y_EQUALS_0) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font X-axis left side bearing point lies at zero
+	/// </summary>
+	public static Boolean HasLeftSideBearingPointAtZero(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_LSB_POINT_X_EQUALS_0) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has unicode variation sequences feature
+	/// </summary>
+	public static Boolean HasVariationSequences(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_VARIATION_SEQUENCES) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font has OpenType variation feature 
+	/// </summary>
+	public static Boolean HasOpenTypeVariations(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_OPENTYPE_VARIATIONS) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font is a symbol font
+	/// </summary>
+	public static Boolean IsSymbolFont(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_SYMBOL_FONT) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
+	/// <summary>
+	/// Whether the font is a last resort font
+	/// </summary>
+	public static Boolean IsLastResortFont(this BLFontFaceFlags flags) => (flags & BLFontFaceFlags.BL_FONT_FACE_FLAG_LAST_RESORT_FONT) != BLFontFaceFlags.BL_FONT_FACE_NO_FLAGS;
 	#endregion fontface
 	#region imagecodec
 	/// <summary>

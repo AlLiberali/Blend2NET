@@ -45,7 +45,7 @@ public sealed class Image : BlendObject<BLImageCore> {
 	/// Instantiates an empty image of <see cref="BLFormat.BL_FORMAT_NONE"/> pixel format
 	/// </summary>
 	public Image() {
-		_ = core.Initialise();
+		core.Initialise();
 	}
 	/// <summary>
 	/// Instantiates an empty <paramref name="width"/> by <paramref name="height"/>
@@ -55,7 +55,7 @@ public sealed class Image : BlendObject<BLImageCore> {
 	/// <param name="height">Height of the image</param>
 	/// <param name="format">Pixel format of the image</param>
 	public Image(UInt32 width, UInt32 height, BLFormat format) {
-		_ = core.Initialise(width, height, format);
+		core.Initialise(width, height, format);
 	}
 	/// <summary>
 	/// A weak copy of <paramref name="other"/> when <paramref name="move"/> is <see langword="false"/>;

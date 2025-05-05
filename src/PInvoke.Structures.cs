@@ -1,8 +1,9 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using BLTag = System.UInt32;
+using System.Text;
 using int16_t = System.Int16;
 using int32_t = System.Int32;
 using int64_t = System.Int64;
@@ -94,6 +95,20 @@ public static partial class PInvoke {
 		public uint32_t data1;
 		public uint32_t data2;
 		public uint32_t data3;
+		public readonly Boolean this[Int32 index] => index switch {
+			>= 0 and < 32 => ((data0 >> index) & 1) == 1,
+			>= 32 and < 64 => ((data1 >> index) & 1) == 1,
+			>= 64 and < 96 => ((data2 >> index) & 1) == 1,
+			>= 96 and < 128 => ((data3 >> index) & 1) == 1,
+			_ => throw new ArgumentOutOfRangeException(nameof(index)),
+		};
+		public static explicit operator BLFontUnicodeCoverageIndex[](BLFontUnicodeCoverage coverage) => [..
+			Enumerable.Range(0, 128)
+				.AsParallel()
+				.Select(i => coverage[i])
+				.Select((b, i) => (BLFontUnicodeCoverageIndex) (b ? i : 256))
+				.Where(e => e != (BLFontUnicodeCoverageIndex) 256)
+		];
 	}
 	public struct BLGlyphInfo {
 		public uint32_t cluster;
@@ -1148,5 +1163,20 @@ public static partial class PInvoke {
 		IGenericMoveInitialisableAndDestroyable,
 		IGenericResettable {
 		public void* impl;
+	}
+	public readonly struct BLTag(uint32_t value) {
+		public readonly UInt32 value = value;
+		public static explicit operator BLTag(String s) {
+			if (Encoding.ASCII.GetByteCount(s) > 4)
+				throw new ArgumentException($"OpenType tags are 4 ASCII characters long", nameof(s));
+			Span<Byte> bytes = stackalloc Byte[4];
+			Encoding.ASCII.GetBytes(s).CopyTo(bytes);
+			return new(MemoryMarshal.Read<UInt32>(bytes));
+		}
+		public static implicit operator String(BLTag tag) {
+			Span<UInt32> u = stackalloc UInt32[1];
+			u[0] = tag.value;
+			return Encoding.ASCII.GetString(MemoryMarshal.AsBytes(u));
+		}
 	}
 }

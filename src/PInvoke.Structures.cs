@@ -97,9 +97,9 @@ public static partial class PInvoke {
 		public uint32_t data3;
 		public readonly Boolean this[Int32 index] => index switch {
 			>= 0 and < 32 => ((data0 >> index) & 1) == 1,
-			>= 32 and < 64 => ((data1 >> index) & 1) == 1,
-			>= 64 and < 96 => ((data2 >> index) & 1) == 1,
-			>= 96 and < 128 => ((data3 >> index) & 1) == 1,
+			>= 32 and < 64 => ((data1 >> (index - 32)) & 1) == 1,
+			>= 64 and < 96 => ((data2 >> (index - 64)) & 1) == 1,
+			>= 96 and < 128 => ((data3 >> (index - 96)) & 1) == 1,
 			_ => throw new ArgumentOutOfRangeException(nameof(index)),
 		};
 		public static explicit operator BLFontUnicodeCoverageIndex[](BLFontUnicodeCoverage coverage) => [..
@@ -1171,12 +1171,15 @@ public static partial class PInvoke {
 				throw new ArgumentException($"OpenType tags are 4 ASCII characters long", nameof(s));
 			Span<Byte> bytes = stackalloc Byte[4];
 			Encoding.ASCII.GetBytes(s).CopyTo(bytes);
+			bytes.Reverse(); // TODO: Change when a big endian architecture is supported
 			return new(MemoryMarshal.Read<UInt32>(bytes));
 		}
 		public static implicit operator String(BLTag tag) {
 			Span<UInt32> u = stackalloc UInt32[1];
 			u[0] = tag.value;
-			return Encoding.ASCII.GetString(MemoryMarshal.AsBytes(u));
+			Span<Byte> arr = MemoryMarshal.AsBytes(u);
+			arr.Reverse(); // TODO: Change when a big endian architecture is supported
+			return Encoding.ASCII.GetString(arr);
 		}
 	}
 }

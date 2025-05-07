@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using static AlLiberali.Blend2NET.PInvoke;
 
 namespace AlLiberali.Blend2NET;
@@ -488,6 +489,23 @@ public sealed class Context : BlendObject<BLContextCore>, ITransformable {
 	public BLResult FillPie(BLArc geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_PIE, geom, style);
 	/// <inheritdoc cref="FillRectangle(BLRect, Style)"/>
 	public BLResult FillTriangle(BLTriangle geom, Style style) => FillGeometry(BLGeometryType.BL_GEOMETRY_TYPE_TRIANGLE, geom, style);
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="origin"></param>
+	/// <param name="font"></param>
+	/// <param name="text"></param>
+	/// <param name="style"></param>
+	/// <returns></returns>
+	public BLResult FillString(BLPoint origin, Font font, String text, Style style) {
+		ObjectDisposedException.ThrowIf(disposedValue, this);
+		unsafe {
+			fixed (BLContextCore* pcore = &core)
+			fixed (BLFontCore* pfont = &font.core)
+			fixed (void* pstyle = &style.core)
+				return blContextFillUtf16TextDExt(pcore, &origin, pfont, text, (IntPtr) text.Length, pstyle);
+		}
+	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private BLResult StrokeGeometry<TGeom>(BLGeometryType type, TGeom geom, Style style) where TGeom : unmanaged {
 		ObjectDisposedException.ThrowIf(disposedValue, this);

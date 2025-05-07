@@ -18,6 +18,7 @@ public abstract class BlendObject<T> : IDisposable where T : unmanaged, IGeneric
 	}
 	#region IDisposable
 	private protected Boolean disposedValue;
+	internal Boolean IsDisposed => disposedValue;
 	/// <inheritdoc/>
 	~BlendObject() {
 		Dispose();

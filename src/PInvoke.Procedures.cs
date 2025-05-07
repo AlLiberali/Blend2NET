@@ -680,6 +680,8 @@ public static partial class PInvoke {
 	public static extern unsafe BLResult blFontFaceGetFeatureTags(BLFontFaceCore* self, BLArrayCore* @out);
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontFaceGetVariationTags(BLFontFaceCore* self, BLArrayCore* @out);
+	#endregion fontface
+	#region fontsettings
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontFeatureSettingsInit(BLFontFeatureSettingsCore* self);
 	[DllImport("blend2d")]
@@ -716,7 +718,7 @@ public static partial class PInvoke {
 	[DllImport("blend2d")]
 	[return: MarshalAs(UnmanagedType.U1)]
 	public static extern unsafe Boolean blFontFeatureSettingsEquals(BLFontFeatureSettingsCore* a, BLFontFeatureSettingsCore* b);
-	#endregion fontface
+	#endregion fontsettings
 	#region fontvariation
 	[DllImport("blend2d")]
 	public static extern unsafe BLResult blFontVariationSettingsInit(BLFontVariationSettingsCore* self);

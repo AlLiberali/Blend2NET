@@ -238,6 +238,8 @@ public abstract class Gradient : Style, ITransformable, IDictionary<Double, BLRg
 	/// <inheritdoc/>
 	public IEnumerator<KeyValuePair<Double, BLRgba64>> GetEnumerator() {
 		ObjectDisposedException.ThrowIf(disposedValue, this);
+		if (Count == 0)
+			yield break;
 		BLGradientStop[] stops = new BLGradientStop[Count];
 		unsafe {
 			BLGradientStop* pdata = default;

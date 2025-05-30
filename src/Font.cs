@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using static AlLiberali.Blend2NET.PInvoke;
 
 namespace AlLiberali.Blend2NET;
@@ -290,7 +286,7 @@ public sealed class Font : BlendObject<BLFontCore> {
 	/// OpenType feature tags set for this font instance. Query the underlying <see cref="FontFace"/>'s
 	/// <see cref="FontFace.GetAvailableFeatureTags"/> for supported tags.
 	/// </summary>
-	public TagFacadeDictionary<BLFontFeatureSettingsCore, BLFontFeatureItem, BLFontFeatureSettingsView, UInt32> Features { get; }
+	public TagFacadeDictionary<BLFontFeatureSettingsCore, BLFontFeatureItem, BLFontFeatureSettingsView, UInt32> Features { get; } // TODO: Find out why setting any of them does nothing
 	/// <summary>
 	/// OpenType variation tags set for this font instance. Query the underlying <see cref="FontFace"/>'s
 	/// <see cref="FontFace.GetAvailableFeatureTags"/> for supported tags.
@@ -308,6 +304,7 @@ public sealed class Font : BlendObject<BLFontCore> {
 			Features = new(
 				this,
 				blFontGetFeatureSettings,
+				blFontSetFeatureSettings,
 				blFontFeatureSettingsGetValue,
 				blFontFeatureSettingsSetValue,
 				blFontFeatureSettingsHasValue,
@@ -319,6 +316,7 @@ public sealed class Font : BlendObject<BLFontCore> {
 			Variations = new(
 				this,
 				blFontGetVariationSettings,
+				blFontSetVariationSettings,
 				blFontVariationSettingsGetValue,
 				blFontVariationSettingsSetValue,
 				blFontVariationSettingsHasValue,
@@ -343,7 +341,7 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 	where TView : unmanaged
 	where TValue : unmanaged {
 	#region eww dont look
-	internal unsafe delegate BLResult GetSettings(BLFontCore* pcore, T* settings);
+	internal unsafe delegate BLResult ManipulateSettings(BLFontCore* pcore, T* settings);
 	internal unsafe delegate TValue GetValue(T* settings, BLTag key);
 	internal unsafe delegate BLResult SetValue(T* settings, BLTag key, TValue value);
 	internal unsafe delegate Boolean HasKey(T* settings, BLTag key);
@@ -351,7 +349,8 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 	internal unsafe delegate IntPtr Length(T* settings);
 	internal unsafe delegate BLResult ClearFunc(T* settings);
 	internal unsafe delegate BLResult View(T* settings, TView* view);
-	private readonly GetSettings getSettings;
+	private readonly ManipulateSettings getSettings;
+	private readonly ManipulateSettings setSettings;
 	private readonly GetValue getValue;
 	private readonly SetValue setValue;
 	private readonly HasKey hasKey;
@@ -360,9 +359,10 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 	private readonly ClearFunc clear;
 	private readonly View view;
 	private readonly Font mummy;
-	internal TagFacadeDictionary(Font m, GetSettings a, GetValue c, SetValue d, HasKey e, RemoveKey f, Length g, ClearFunc h, View i) {
+	internal TagFacadeDictionary(Font m, ManipulateSettings a, ManipulateSettings b, GetValue c, SetValue d, HasKey e, RemoveKey f, Length g, ClearFunc h, View i) {
 		mummy = m;
 		getSettings = a;
+		setSettings = b;
 		getValue = c;
 		setValue = d;
 		hasKey = e;
@@ -371,10 +371,19 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 		clear = h;
 		view = i;
 		core.Initialise();
+	}
+	private void Getteth() {
 		unsafe {
 			fixed (T* pcore = &core)
 			fixed (BLFontCore* pmummy = &mummy.core)
 				getSettings(pmummy, pcore);
+		}
+	}
+	private void Setteth() {
+		unsafe {
+			fixed (T* pcore = &core)
+			fixed (BLFontCore* pmummy = &mummy.core)
+				setSettings(pmummy, pcore);
 		}
 	}
 	#endregion eww dont look
@@ -382,10 +391,13 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 	public TValue this[BLTag key] {
 		get => TryGetValue(key, out TValue value) ? value : throw new KeyNotFoundException();
 		set {
+			ObjectDisposedException.ThrowIf(mummy.IsDisposed, mummy);
+			Getteth();
 			unsafe {
 				fixed (T* pcore = &core)
 					setValue(pcore, key, value);
 			}
+			Setteth();
 		}
 	}
 	/// <inheritdoc/>
@@ -428,6 +440,7 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 	/// <inheritdoc/>
 	public Boolean TryGetValue(BLTag key, out TValue value) {
 		ObjectDisposedException.ThrowIf(mummy.IsDisposed, mummy);
+		Getteth();
 		value = default;
 		unsafe {
 			if (!ContainsKey(key))
@@ -435,6 +448,7 @@ public sealed class TagFacadeDictionary<T, TItem, TView, TValue>
 			fixed (T* pcore = &core)
 				value = getValue(pcore, key);
 		}
+		Setteth();
 		return true;
 	}
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
